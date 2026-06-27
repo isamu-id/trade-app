@@ -11,7 +11,7 @@ export default function NewItemPage() {
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState(CATEGORIES[0]);
+  const [category, setCategory] = useState<string>(CATEGORIES[0]);
   const [condition, setCondition] = useState("良好");
   const [desiredItemsText, setDesiredItemsText] = useState("");
   const [files, setFiles] = useState<File[]>([]);
