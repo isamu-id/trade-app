@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import OfferButton from "./offer-button";
@@ -24,6 +25,13 @@ export default async function ItemDetailPage({
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-6">
+      <Link
+        href="/items"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-gray-500"
+      >
+        ← 商品一覧に戻る
+      </Link>
+
       <div className="flex gap-4">
         <div className="flex h-36 w-36 flex-shrink-0 items-center justify-center rounded-xl bg-gray-100">
           {item.images?.[0] ? (
