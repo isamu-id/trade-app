@@ -3,6 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import OfferActions from "./offer-actions";
 import Chat from "./chat";
 
+export const dynamic = "force-dynamic";
+
 export default async function OfferDetailPage({
   params,
 }: {

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORIES, type Item } from "@/types/database";
 
+export const dynamic = "force-dynamic";
+
 export default async function ItemsPage() {
   const supabase = createClient();
 

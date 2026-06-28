@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import LoginScreen from "@/components/LoginScreen";
 import LogoutButton from "@/components/LogoutButton";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const supabase = createClient();
   const { data: auth } = await supabase.auth.getUser();

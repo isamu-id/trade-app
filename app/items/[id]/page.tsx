@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import OfferButton from "./offer-button";
 
+export const dynamic = "force-dynamic";
+
 export default async function ItemDetailPage({
   params,
 }: {

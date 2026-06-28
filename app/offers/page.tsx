@@ -2,6 +2,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 const statusLabel: Record<string, string> = {
   pending: "未回答",
   accepted: "承諾済み",
