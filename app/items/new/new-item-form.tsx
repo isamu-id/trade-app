@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { CATEGORIES } from "@/types/database";
@@ -67,6 +68,13 @@ export default function NewItemForm() {
 
   return (
     <main className="mx-auto max-w-md px-4 py-6">
+      <Link
+        href="/"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-gray-500"
+      >
+        ← トップに戻る
+      </Link>
+
       <h1 className="mb-4 text-lg font-medium">出品する</h1>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">

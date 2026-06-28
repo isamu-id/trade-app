@@ -32,6 +32,13 @@ export default async function OffersPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-6">
+      <Link
+        href="/"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-gray-500"
+      >
+        ← トップに戻る
+      </Link>
+
       <h1 className="mb-4 text-lg font-medium">オファー</h1>
 
       <div className="flex flex-col gap-2">
