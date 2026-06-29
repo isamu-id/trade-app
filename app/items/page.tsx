@@ -15,6 +15,17 @@ export default async function ItemsPage() {
     .eq("status", "available")
     .order("created_at", { ascending: false });
 
+  // 自分が送った、未回答のオファーの対象商品IDを取得
+  let pendingItemIds: string[] = [];
+  if (auth.user) {
+    const { data: myPendingOffers } = await supabase
+      .from("trade_offers")
+      .select("requesting_item_id")
+      .eq("offerer_id", auth.user.id)
+      .eq("status", "pending");
+    pendingItemIds = myPendingOffers?.map((o) => o.requesting_item_id) ?? [];
+  }
+
   const itemsByCategory = CATEGORIES.map((category) => ({
     category,
     items: (items as Item[] | null)?.filter((i) => i.category === category) ?? [],
@@ -58,6 +69,7 @@ export default async function ItemsPage() {
           <div className="flex gap-3 overflow-x-auto pb-2">
             {group.items.map((item) => {
               const isOwner = auth.user?.id === item.owner_id;
+              const isNegotiating = pendingItemIds.includes(item.id);
 
               const cardContent = (
                 <>
@@ -89,6 +101,21 @@ export default async function ItemsPage() {
                     {cardContent}
                     <span className="absolute left-1 top-1 rounded-md bg-gray-700/80 px-1.5 py-0.5 text-[10px] text-white">
                       自分の出品
+                    </span>
+                  </div>
+                );
+              }
+
+              if (isNegotiating) {
+                return (
+                  <div
+                    key={item.id}
+                    title="すでにオファーを送っているため選択できません"
+                    className="relative w-32 flex-shrink-0 cursor-not-allowed overflow-hidden rounded-xl border border-gray-200 opacity-50"
+                  >
+                    {cardContent}
+                    <span className="absolute left-1 top-1 rounded-md bg-red-600/90 px-1.5 py-0.5 text-[10px] text-white">
+                      交渉中
                     </span>
                   </div>
                 );
