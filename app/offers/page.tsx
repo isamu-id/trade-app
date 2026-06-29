@@ -22,41 +22,70 @@ function OfferCard({
   offer: OfferRow;
   yourItemTitle?: string;
   theirItemTitle?: string;
-  accent?: "received" | "sent" | "accepted";
+  accent: "pending" | "accepted";
 }) {
   return (
     <div
       className={`flex items-center justify-between rounded-lg border px-3 py-2 ${
-        accent === "received"
+        accent === "pending"
           ? "border-yellow-300 bg-yellow-50"
-          : accent === "sent"
-          ? "border-blue-300 bg-blue-50"
-          : accent === "accepted"
-          ? "border-green-300 bg-green-50"
-          : "border-gray-200"
+          : "border-green-300 bg-green-50"
       }`}
     >
-      <Link href={`/offers/${offer.id}`} className="flex flex-1 items-center justify-between">
+      <Link
+        href={`/offers/${offer.id}`}
+        className="flex flex-1 items-center justify-between"
+      >
         <p className="text-sm font-medium">
           あなたの「{yourItemTitle}」⇄ 相手の「{theirItemTitle}」
         </p>
-        {accent === "received" && (
+        {accent === "pending" ? (
           <span className="rounded-md bg-yellow-100 px-2 py-1 text-xs text-yellow-700">
             未回答
           </span>
-        )}
-        {accent === "sent" && (
-          <span className="rounded-md bg-blue-100 px-2 py-1 text-xs text-blue-700">
-            返答待ち
-          </span>
-        )}
-        {accent === "accepted" && (
+        ) : (
           <span className="rounded-md bg-green-100 px-2 py-1 text-xs text-green-700">
             承諾済み
           </span>
         )}
       </Link>
       <DeleteOfferButton offerId={offer.id} />
+    </div>
+  );
+}
+
+function SubSection({
+  title,
+  offers,
+  emptyText,
+  yourItemKey,
+  theirItemKey,
+  accent,
+}: {
+  title: string;
+  offers: OfferRow[];
+  emptyText: string;
+  yourItemKey: "offering_item" | "requesting_item";
+  theirItemKey: "offering_item" | "requesting_item";
+  accent: "pending" | "accepted";
+}) {
+  return (
+    <div className="mb-3">
+      <p className="mb-2 text-xs font-medium text-gray-500">{title}</p>
+      <div className="flex flex-col gap-2">
+        {offers.map((offer) => (
+          <OfferCard
+            key={offer.id}
+            offer={offer}
+            yourItemTitle={offer[yourItemKey]?.title}
+            theirItemTitle={offer[theirItemKey]?.title}
+            accent={accent}
+          />
+        ))}
+        {offers.length === 0 && (
+          <p className="text-sm text-gray-500">{emptyText}</p>
+        )}
+      </div>
     </div>
   );
 }
@@ -75,18 +104,14 @@ export default async function OffersPage() {
 
   const allOffers = (offers as OfferRow[] | null) ?? [];
 
-  // 受け取った、未回答のオファー
-  const received = allOffers.filter(
-    (o) => o.offerer_id !== auth.user.id && o.status === "pending"
-  );
+  const receivedAll = allOffers.filter((o) => o.offerer_id !== auth.user.id);
+  const sentAll = allOffers.filter((o) => o.offerer_id === auth.user.id);
 
-  // 送信した、未回答のオファー
-  const sent = allOffers.filter(
-    (o) => o.offerer_id === auth.user.id && o.status === "pending"
-  );
+  const receivedPending = receivedAll.filter((o) => o.status === "pending");
+  const receivedAccepted = receivedAll.filter((o) => o.status === "accepted");
 
-  // 承諾済みのオファー(送信/受信どちらも)
-  const accepted = allOffers.filter((o) => o.status === "accepted");
+  const sentPending = sentAll.filter((o) => o.status === "pending");
+  const sentAccepted = sentAll.filter((o) => o.status === "accepted");
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-6">
@@ -99,83 +124,57 @@ export default async function OffersPage() {
 
       <h1 className="mb-4 text-lg font-medium">オファー</h1>
 
-      <section className="mb-6">
-        <p className="mb-0.5 flex items-center gap-1.5 text-sm font-medium text-yellow-800">
+      <section className="mb-8">
+        <p className="mb-2 flex items-center gap-1.5 text-base font-semibold text-gray-800">
           📥 受け取ったオファー
-          {received.length > 0 && (
+          {receivedPending.length > 0 && (
             <span className="rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] text-white">
-              {received.length}
+              {receivedPending.length}
             </span>
           )}
         </p>
-        <p className="mb-2 text-xs text-gray-500">あなたの返信が必要です</p>
-        <div className="flex flex-col gap-2">
-          {received.map((offer) => (
-            <OfferCard
-              key={offer.id}
-              offer={offer}
-              yourItemTitle={offer.requesting_item?.title}
-              theirItemTitle={offer.offering_item?.title}
-              accent="received"
-            />
-          ))}
-          {received.length === 0 && (
-            <p className="text-sm text-gray-500">
-              受け取ったオファーで未回答のものはありません。
-            </p>
-          )}
-        </div>
-      </section>
 
-      <section className="mb-6">
-        <p className="mb-0.5 text-sm font-medium text-blue-800">📤 送信したオファー</p>
-        <p className="mb-2 text-xs text-gray-500">相手の返信を待っています</p>
-        <div className="flex flex-col gap-2">
-          {sent.map((offer) => (
-            <OfferCard
-              key={offer.id}
-              offer={offer}
-              yourItemTitle={offer.offering_item?.title}
-              theirItemTitle={offer.requesting_item?.title}
-              accent="sent"
-            />
-          ))}
-          {sent.length === 0 && (
-            <p className="text-sm text-gray-500">
-              返答待ちの送信したオファーはありません。
-            </p>
-          )}
-        </div>
+        <SubSection
+          title="未承諾"
+          offers={receivedPending}
+          emptyText="未承諾の受け取ったオファーはありません。"
+          yourItemKey="requesting_item"
+          theirItemKey="offering_item"
+          accent="pending"
+        />
+
+        <SubSection
+          title="承諾済み"
+          offers={receivedAccepted}
+          emptyText="承諾済みの受け取ったオファーはありません。"
+          yourItemKey="requesting_item"
+          theirItemKey="offering_item"
+          accent="accepted"
+        />
       </section>
 
       <section>
-        <p className="mb-0.5 text-sm font-medium text-green-800">✅ 承諾したオファー</p>
-        <p className="mb-2 text-xs text-gray-500">交換が成立したオファーです</p>
-        <div className="flex flex-col gap-2">
-          {accepted.map((offer) => {
-            const isSender = offer.offerer_id === auth.user.id;
-            return (
-              <OfferCard
-                key={offer.id}
-                offer={offer}
-                yourItemTitle={
-                  isSender
-                    ? offer.offering_item?.title
-                    : offer.requesting_item?.title
-                }
-                theirItemTitle={
-                  isSender
-                    ? offer.requesting_item?.title
-                    : offer.offering_item?.title
-                }
-                accent="accepted"
-              />
-            );
-          })}
-          {accepted.length === 0 && (
-            <p className="text-sm text-gray-500">承諾済みのオファーはありません。</p>
-          )}
-        </div>
+        <p className="mb-2 text-base font-semibold text-gray-800">
+          📤 送信したオファー
+        </p>
+
+        <SubSection
+          title="未承諾"
+          offers={sentPending}
+          emptyText="未承諾の送信したオファーはありません。"
+          yourItemKey="offering_item"
+          theirItemKey="requesting_item"
+          accent="pending"
+        />
+
+        <SubSection
+          title="承諾済み"
+          offers={sentAccepted}
+          emptyText="承諾済みの送信したオファーはありません。"
+          yourItemKey="offering_item"
+          theirItemKey="requesting_item"
+          accent="accepted"
+        />
       </section>
     </main>
   );
