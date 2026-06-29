@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import OfferActions from "./offer-actions";
@@ -34,6 +35,13 @@ export default async function OfferDetailPage({
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-6">
+      <Link
+        href="/offers"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-gray-500"
+      >
+        ← オファー一覧に戻る
+      </Link>
+
       <div className="mb-3 flex items-center justify-between">
         <p className="text-sm font-medium">
           {offer.offering_item?.title} ⇄ {offer.requesting_item?.title}
