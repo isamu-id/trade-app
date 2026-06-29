@@ -42,28 +42,37 @@ export default async function OffersPage() {
       <h1 className="mb-4 text-lg font-medium">オファー</h1>
 
       <div className="flex flex-col gap-2">
-        {offers?.map((offer) => (
-          <Link
-            key={offer.id}
-            href={`/offers/${offer.id}`}
-            className="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2"
-          >
-            <div>
-              <p className="text-sm font-medium">
-                あなたの「{offer.offering_item?.title}」⇄ 相手の「
-                {offer.requesting_item?.title}」
-              </p>
-              <p className="mt-0.5 text-xs text-gray-500">
-                {offer.offerer_id === auth.user.id ? "送信" : "受信"}
-              </p>
-            </div>
-            <span
-              className={`rounded-md px-2 py-1 text-xs ${statusColor[offer.status]}`}
+        {offers?.map((offer) => {
+          const isSender = offer.offerer_id === auth.user.id;
+          const yourItemTitle = isSender
+            ? offer.offering_item?.title
+            : offer.requesting_item?.title;
+          const theirItemTitle = isSender
+            ? offer.requesting_item?.title
+            : offer.offering_item?.title;
+
+          return (
+            <Link
+              key={offer.id}
+              href={`/offers/${offer.id}`}
+              className="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2"
             >
-              {statusLabel[offer.status]}
-            </span>
-          </Link>
-        ))}
+              <div>
+                <p className="text-sm font-medium">
+                  あなたの「{yourItemTitle}」⇄ 相手の「{theirItemTitle}」
+                </p>
+                <p className="mt-0.5 text-xs text-gray-500">
+                  {isSender ? "送信" : "受信"}
+                </p>
+              </div>
+              <span
+                className={`rounded-md px-2 py-1 text-xs ${statusColor[offer.status]}`}
+              >
+                {statusLabel[offer.status]}
+              </span>
+            </Link>
+          );
+        })}
 
         {offers?.length === 0 && (
           <p className="text-sm text-gray-500">まだオファーがありません。</p>
