@@ -23,6 +23,19 @@ export default async function ItemDetailPage({
   const { data: auth } = await supabase.auth.getUser();
   const isOwner = auth.user?.id === item.owner_id;
 
+  // 自分がこの商品に対して、すでにオファーを送っているか確認
+  let hasPendingOffer = false;
+  if (auth.user && !isOwner) {
+    const { data: existingOffer } = await supabase
+      .from("trade_offers")
+      .select("id")
+      .eq("requesting_item_id", item.id)
+      .eq("offerer_id", auth.user.id)
+      .eq("status", "pending")
+      .maybeSingle();
+    hasPendingOffer = !!existingOffer;
+  }
+
   return (
     <main className="mx-auto max-w-2xl px-4 py-6">
       <Link
@@ -54,7 +67,21 @@ export default async function ItemDetailPage({
           </p>
           <p className="mb-4 text-sm leading-relaxed">{item.description}</p>
 
-          {!isOwner && <OfferButton requestingItemId={item.id} />}
+          {isOwner && (
+            <p className="mb-3 inline-block rounded-md bg-gray-100 px-2 py-1 text-xs text-gray-600">
+              自分が出品した商品です
+            </p>
+          )}
+
+          {!isOwner && hasPendingOffer && (
+            <p className="mb-3 inline-block rounded-md bg-yellow-100 px-2 py-1 text-xs text-yellow-700">
+              交渉中です
+            </p>
+          )}
+
+          {!isOwner && !hasPendingOffer && (
+            <OfferButton requestingItemId={item.id} />
+          )}
         </div>
       </div>
 
