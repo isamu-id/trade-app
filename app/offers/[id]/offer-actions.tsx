@@ -11,22 +11,19 @@ export default function OfferActions({ offerId }: { offerId: string }) {
 
   async function updateStatus(status: "accepted" | "rejected") {
     setLoading(true);
-    await supabase.from("trade_offers").update({ status }).eq("id", offerId);
 
-    // 承諾時は両方の商品をtradedに更新(本来はDB側のトリガーで行うのが望ましい)
     if (status === "accepted") {
-      const { data: offer } = await supabase
-        .from("trade_offers")
-        .select("offering_item_id, requesting_item_id")
-        .eq("id", offerId)
-        .single();
-
-      if (offer) {
-        await supabase
-          .from("items")
-          .update({ status: "traded" })
-          .in("id", [offer.offering_item_id, offer.requesting_item_id]);
+      // 両方の商品を確実に更新するため、Supabase側の関数を呼ぶ
+      const { error } = await supabase.rpc("accept_trade_offer", {
+        offer_id: offerId,
+      });
+      if (error) {
+        alert("承諾に失敗しました: " + error.message);
+        setLoading(false);
+        return;
       }
+    } else {
+      await supabase.from("trade_offers").update({ status }).eq("id", offerId);
     }
 
     setLoading(false);
