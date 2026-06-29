@@ -1,0 +1,11 @@
+{
+  "remoteName": "origin",
+  "projects": [
+    {
+      "id": "prj_SYkNeyenF1wGiPLKaSeQf4w07Hnl",
+      "name": "trade-app",
+      "directory": ".",
+      "orgId": "team_0P4rFYLs9R9kq9IvTWtbWgmo"
+    }
+  ]
+}

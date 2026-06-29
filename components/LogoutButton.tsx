@@ -15,7 +15,7 @@ export default function LogoutButton({ className = "" }: { className?: string })
   return (
     <button
       onClick={handleLogout}
-      className={`text-sm text-gray-500 ${className}`}
+      className={`text-xs text-gray-700 ${className}`}
     >
       ログアウト
     </button>

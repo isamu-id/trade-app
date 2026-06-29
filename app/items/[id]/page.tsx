@@ -39,10 +39,10 @@ export default async function ItemDetailPage({
   return (
     <main className="mx-auto max-w-2xl px-4 py-6">
       <Link
-        href="/items"
+        href="/"
         className="mb-4 inline-flex items-center gap-1 text-sm text-gray-500"
       >
-        ← 商品一覧に戻る
+        ← トップに戻る
       </Link>
 
       <div className="flex gap-4">

@@ -63,7 +63,7 @@ export default function NewItemForm() {
       setError(insertError.message);
       return;
     }
-    router.push("/items");
+    router.push("/");
   }
 
   return (

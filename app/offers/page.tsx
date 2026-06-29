@@ -104,14 +104,20 @@ export default async function OffersPage() {
 
   const allOffers = (offers as OfferRow[] | null) ?? [];
 
-  const receivedAll = allOffers.filter((o) => o.offerer_id !== auth.user.id);
-  const sentAll = allOffers.filter((o) => o.offerer_id === auth.user.id);
+  const pendingAll = allOffers.filter((o) => o.status === "pending");
+  const acceptedAll = allOffers.filter((o) => o.status === "accepted");
 
-  const receivedPending = receivedAll.filter((o) => o.status === "pending");
-  const receivedAccepted = receivedAll.filter((o) => o.status === "accepted");
+  const pendingReceived = pendingAll.filter(
+    (o) => o.offerer_id !== auth.user.id
+  );
+  const pendingSent = pendingAll.filter((o) => o.offerer_id === auth.user.id);
 
-  const sentPending = sentAll.filter((o) => o.status === "pending");
-  const sentAccepted = sentAll.filter((o) => o.status === "accepted");
+  const acceptedReceived = acceptedAll.filter(
+    (o) => o.offerer_id !== auth.user.id
+  );
+  const acceptedSent = acceptedAll.filter(
+    (o) => o.offerer_id === auth.user.id
+  );
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-6">
@@ -125,52 +131,52 @@ export default async function OffersPage() {
       <h1 className="mb-4 text-lg font-medium">オファー</h1>
 
       <section className="mb-8">
-        <p className="mb-2 flex items-center gap-1.5 text-base font-semibold text-gray-800">
-          📥 受け取ったオファー
-          {receivedPending.length > 0 && (
+        <p className="mb-2 flex items-center gap-1.5 text-base font-semibold text-yellow-800">
+          🤝 取引中のオファー
+          {pendingReceived.length > 0 && (
             <span className="rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] text-white">
-              {receivedPending.length}
+              {pendingReceived.length}
             </span>
           )}
         </p>
 
         <SubSection
-          title="未承諾"
-          offers={receivedPending}
-          emptyText="未承諾の受け取ったオファーはありません。"
+          title="📥 受け取ったオファー"
+          offers={pendingReceived}
+          emptyText="取引中の、受け取ったオファーはありません。"
           yourItemKey="requesting_item"
           theirItemKey="offering_item"
           accent="pending"
         />
 
         <SubSection
-          title="承諾済み"
-          offers={receivedAccepted}
-          emptyText="承諾済みの受け取ったオファーはありません。"
-          yourItemKey="requesting_item"
-          theirItemKey="offering_item"
-          accent="accepted"
-        />
-      </section>
-
-      <section>
-        <p className="mb-2 text-base font-semibold text-gray-800">
-          📤 送信したオファー
-        </p>
-
-        <SubSection
-          title="未承諾"
-          offers={sentPending}
-          emptyText="未承諾の送信したオファーはありません。"
+          title="📤 送信したオファー"
+          offers={pendingSent}
+          emptyText="取引中の、送信したオファーはありません。"
           yourItemKey="offering_item"
           theirItemKey="requesting_item"
           accent="pending"
         />
+      </section>
+
+      <section>
+        <p className="mb-2 text-base font-semibold text-green-800">
+          ✅ 取引終了したオファー
+        </p>
 
         <SubSection
-          title="承諾済み"
-          offers={sentAccepted}
-          emptyText="承諾済みの送信したオファーはありません。"
+          title="📥 受け取ったオファー"
+          offers={acceptedReceived}
+          emptyText="取引終了した、受け取ったオファーはありません。"
+          yourItemKey="requesting_item"
+          theirItemKey="offering_item"
+          accent="accepted"
+        />
+
+        <SubSection
+          title="📤 送信したオファー"
+          offers={acceptedSent}
+          emptyText="取引終了した、送信したオファーはありません。"
           yourItemKey="offering_item"
           theirItemKey="requesting_item"
           accent="accepted"
