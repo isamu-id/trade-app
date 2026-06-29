@@ -53,6 +53,13 @@ export default async function HomePage() {
       </Link>
 
       <Link
+        href="/items/mine"
+        className="flex w-60 items-center justify-center gap-2 rounded-lg border border-gray-300 py-4"
+      >
+        出品した商品を確認する
+      </Link>
+
+      <Link
         href="/offers"
         className="relative flex w-60 items-center justify-center gap-2 rounded-lg border border-gray-300 py-4"
       >
