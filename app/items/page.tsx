@@ -24,6 +24,24 @@ export default async function ItemsPage() {
       .eq("offerer_id", auth.user.id)
       .eq("status", "pending");
     pendingItemIds = myPendingOffers?.map((o) => o.requesting_item_id) ?? [];
+
+    // 自分の出品物に対して送られてきた、未回答オファーの「提供商品」も交渉中とする
+    const { data: myItems } = await supabase
+      .from("items")
+      .select("id")
+      .eq("owner_id", auth.user.id);
+    const myItemIds = myItems?.map((i) => i.id) ?? [];
+
+    if (myItemIds.length > 0) {
+      const { data: incomingOffers } = await supabase
+        .from("trade_offers")
+        .select("offering_item_id")
+        .in("requesting_item_id", myItemIds)
+        .eq("status", "pending");
+      const incomingItemIds =
+        incomingOffers?.map((o) => o.offering_item_id) ?? [];
+      pendingItemIds = [...pendingItemIds, ...incomingItemIds];
+    }
   }
 
   const itemsByCategory = CATEGORIES.map((category) => ({
