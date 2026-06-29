@@ -7,6 +7,8 @@ export const dynamic = "force-dynamic";
 export default async function ItemsPage() {
   const supabase = createClient();
 
+  const { data: auth } = await supabase.auth.getUser();
+
   const { data: items } = await supabase
     .from("items")
     .select("*")
@@ -54,27 +56,54 @@ export default async function ItemsPage() {
         <section key={group.category} className="mb-6">
           <p className="mb-2 text-sm font-medium">{group.category}</p>
           <div className="flex gap-3 overflow-x-auto pb-2">
-            {group.items.map((item) => (
-              <Link
-                key={item.id}
-                href={`/items/${item.id}`}
-                className="w-32 flex-shrink-0 overflow-hidden rounded-xl border border-gray-200"
-              >
-                <div className="flex h-20 items-center justify-center bg-gray-100">
-                  {item.images?.[0] ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={item.images[0]}
-                      alt={item.title}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-xs text-gray-400">画像なし</span>
-                  )}
-                </div>
-                <p className="truncate p-2 text-xs font-medium">{item.title}</p>
-              </Link>
-            ))}
+            {group.items.map((item) => {
+              const isOwner = auth.user?.id === item.owner_id;
+
+              const cardContent = (
+                <>
+                  <div className="flex h-20 items-center justify-center bg-gray-100">
+                    {item.images?.[0] ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={item.images[0]}
+                        alt={item.title}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-xs text-gray-400">画像なし</span>
+                    )}
+                  </div>
+                  <p className="truncate p-2 text-xs font-medium">
+                    {item.title}
+                  </p>
+                </>
+              );
+
+              if (isOwner) {
+                return (
+                  <div
+                    key={item.id}
+                    title="自分の出品物のため選択できません"
+                    className="relative w-32 flex-shrink-0 cursor-not-allowed overflow-hidden rounded-xl border border-gray-200 opacity-50"
+                  >
+                    {cardContent}
+                    <span className="absolute left-1 top-1 rounded-md bg-gray-700/80 px-1.5 py-0.5 text-[10px] text-white">
+                      自分の出品
+                    </span>
+                  </div>
+                );
+              }
+
+              return (
+                <Link
+                  key={item.id}
+                  href={`/items/${item.id}`}
+                  className="w-32 flex-shrink-0 overflow-hidden rounded-xl border border-gray-200"
+                >
+                  {cardContent}
+                </Link>
+              );
+            })}
           </div>
         </section>
       ))}
