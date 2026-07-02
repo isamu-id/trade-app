@@ -44,16 +44,32 @@ export default function OfferButton({
       return;
     }
 
-    const { error } = await supabase.from("trade_offers").insert({
-      offering_item_id: selectedId,
-      requesting_item_id: requestingItemId,
-      offerer_id: auth.user.id,
+    // オファーを作成し、作成されたオファーのIDを取得
+    const { data: newOffer, error } = await supabase
+      .from("trade_offers")
+      .insert({
+        offering_item_id: selectedId,
+        requesting_item_id: requestingItemId,
+        offerer_id: auth.user.id,
+      })
+      .select()
+      .single();
+
+    if (error || !newOffer) {
+      setLoading(false);
+      return;
+    }
+
+    // システムメッセージをチャットに保存（送信者IDはオファー送信者）
+    await supabase.from("messages").insert({
+      offer_id: newOffer.id,
+      sender_id: auth.user.id,
+      content: "🤝 取引が始まりました。メッセージを送って、住所や受け渡し場所を確認しましょう。",
     });
 
     setLoading(false);
-    if (!error) {
-      router.push("/offers");
-    }
+    // チャット画面に直接遷移
+    router.push(`/offers/${newOffer.id}`);
   }
 
   return (

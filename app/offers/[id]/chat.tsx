@@ -112,24 +112,38 @@ export default function Chat({
       </div>
 
       <div className="flex h-52 flex-col gap-2 overflow-y-auto rounded-lg bg-gray-50 p-3">
-        {messages.map((m) => (
-          <div
-            key={m.id}
-            className={`max-w-[75%] rounded-lg px-3 py-1.5 text-sm ${
-              m.sender_id === currentUserId
-                ? "self-end bg-blue-100"
-                : "self-start border border-gray-200 bg-white"
-            }`}
-          >
-            <p>{m.content}</p>
-            <p className="mt-0.5 text-[10px] text-gray-400">
-              {new Date(m.created_at).toLocaleTimeString("ja-JP", {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </p>
-          </div>
-        ))}
+        {messages.map((m) => {
+          // 🤝で始まるシステムメッセージは中央に特別表示
+          const isSystem = m.content.startsWith("🤝");
+          if (isSystem) {
+            return (
+              <div key={m.id} className="flex flex-col items-center gap-1 py-2">
+                <span className="text-2xl">🤝</span>
+                <p className="text-center text-xs font-medium text-gray-600">
+                  {m.content.replace("🤝 ", "")}
+                </p>
+              </div>
+            );
+          }
+          return (
+            <div
+              key={m.id}
+              className={`max-w-[75%] rounded-lg px-3 py-1.5 text-sm ${
+                m.sender_id === currentUserId
+                  ? "self-end bg-blue-100"
+                  : "self-start border border-gray-200 bg-white"
+              }`}
+            >
+              <p>{m.content}</p>
+              <p className="mt-0.5 text-[10px] text-gray-400">
+                {new Date(m.created_at).toLocaleTimeString("ja-JP", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
+            </div>
+          );
+        })}
         <div ref={bottomRef} />
       </div>
 
