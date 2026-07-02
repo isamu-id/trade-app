@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Item } from "@/types/database";
+import Spinner from "@/components/Spinner";
 
 type ItemWithLock = Item & { lockReason?: string };
 
@@ -173,8 +174,9 @@ export default function OfferButton({
           <button
             onClick={handleSubmit}
             disabled={!selectedId || loading}
-            className="mt-3 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white disabled:opacity-50"
+            className="mt-3 flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white disabled:opacity-50"
           >
+            {loading && <Spinner />}
             {loading ? "送信中..." : "このアイテムで提案する"}
           </button>
         </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import Spinner from "@/components/Spinner";
 
 export default function OfferActions({ offerId }: { offerId: string }) {
   const supabase = createClient();
@@ -47,15 +48,17 @@ export default function OfferActions({ offerId }: { offerId: string }) {
       <button
         onClick={() => updateStatus("accepted")}
         disabled={loading}
-        className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs text-white disabled:opacity-50"
+        className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs text-white disabled:opacity-50"
       >
+        {loading && <Spinner />}
         承諾
       </button>
       <button
         onClick={() => updateStatus("rejected")}
         disabled={loading}
-        className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs disabled:opacity-50"
+        className="flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-xs disabled:opacity-50"
       >
+        {loading && <Spinner color="gray" />}
         拒否
       </button>
     </div>

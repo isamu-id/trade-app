@@ -6,3 +6,10 @@ body {
   color: #1a1a1a;
   background: #ffffff;
 }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.spinner {
+  animation: spin 0.7s linear infinite;
+}

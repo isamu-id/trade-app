@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import Spinner from "@/components/Spinner";
 
 type TradeFlowProps = {
   offerId: string;
@@ -77,8 +78,9 @@ export default function TradeFlow({
             <button
               onClick={handleShipped}
               disabled={loading}
-              className="ml-auto rounded-lg bg-blue-600 px-3 py-1 text-xs text-white disabled:opacity-50"
+              className="ml-auto flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1 text-xs text-white disabled:opacity-50"
             >
+              {loading && <Spinner />}
               発送しました
             </button>
           )}
@@ -107,8 +109,9 @@ export default function TradeFlow({
                 <button
                   onClick={handleReceived}
                   disabled={loading}
-                  className="ml-auto rounded-lg bg-blue-600 px-3 py-1 text-xs text-white disabled:opacity-50"
+                  className="ml-auto flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1 text-xs text-white disabled:opacity-50"
                 >
+                  {loading && <Spinner />}
                   受け取りました
                 </button>
               )}

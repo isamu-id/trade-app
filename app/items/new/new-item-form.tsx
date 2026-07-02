@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import Spinner from "@/components/Spinner";
 import { CATEGORIES } from "@/types/database";
 
 export default function NewItemForm() {
@@ -158,8 +159,9 @@ export default function NewItemForm() {
         <button
           type="submit"
           disabled={loading}
-          className="rounded-lg bg-blue-600 py-3 text-white disabled:opacity-50"
+          className="flex items-center justify-center gap-2 rounded-lg bg-blue-600 py-3 text-white disabled:opacity-50"
         >
+          {loading && <Spinner />}
           {loading ? "出品中..." : "出品する"}
         </button>
       </form>
