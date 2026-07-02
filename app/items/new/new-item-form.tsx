@@ -21,6 +21,7 @@ export default function NewItemForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (loading) return; // 二重送信防止
     setLoading(true);
     setError(null);
 
