@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import LoginScreen from "@/components/LoginScreen";
-import LogoutButton from "@/components/LogoutButton";
+import Header from "@/components/Header";
 import { CATEGORIES, type Item } from "@/types/database";
 
 export const dynamic = "force-dynamic";
@@ -87,38 +87,32 @@ export default async function HomePage() {
       (items as Item[] | null)?.filter((i) => i.category === category) ?? [],
   })).filter((group) => group.items.length > 0);
 
+  // 通知を取得
+  const { data: notifications } = await supabase
+    .from("notifications")
+    .select("*")
+    .eq("user_id", auth.user.id)
+    .order("created_at", { ascending: false })
+    .limit(30);
+
+  // 未回答の受信オファー件数（ドロワーのバッジ用）
+  let pendingOfferCount = 0;
+  if (myItemIds.length > 0) {
+    const { count } = await supabase
+      .from("trade_offers")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "pending")
+      .in("requesting_item_id", myItemIds);
+    pendingOfferCount = count ?? 0;
+  }
+
   return (
     <main className="mx-auto max-w-3xl">
-      {/* ヘッダー */}
-      <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
-        <p className="text-base font-medium">物々交換</p>
-        <div className="flex items-center gap-1">
-          <Link
-            href="/items/new"
-            className="rounded-lg px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
-          >
-            出品する
-          </Link>
-          <Link
-            href="/items/mine"
-            className="rounded-lg px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
-          >
-            出品した商品
-          </Link>
-          <Link
-            href="/offers"
-            className="relative rounded-lg px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
-          >
-            オファー
-            {unreadCount > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] text-white">
-                {unreadCount}
-              </span>
-            )}
-          </Link>
-          <LogoutButton className="rounded-lg px-2 py-1.5 hover:bg-gray-100" />
-        </div>
-      </div>
+      <Header
+        unreadCount={unreadCount}
+        initialNotifications={notifications ?? []}
+        pendingOfferCount={pendingOfferCount}
+      />
 
       <div className="px-4 py-6">
         <input
