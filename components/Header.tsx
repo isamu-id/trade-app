@@ -99,12 +99,13 @@ export default function Header({
                 if (!notifOpen && unreadNotifCount > 0) markAllRead();
               }}
               aria-label="お知らせ"
-              className="relative flex h-8 w-8 items-center justify-center rounded-lg hover:bg-gray-100"
+              className="relative flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
             >
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden="true">
                 <path d="M9 2a5.5 5.5 0 0 0-5.5 5.5c0 2.5-.8 3.5-1.5 4.5h14c-.7-1-1.5-2-1.5-4.5A5.5 5.5 0 0 0 9 2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M7 13.5a2 2 0 0 0 4 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
+              <span>お知らせ</span>
               {unreadNotifCount > 0 && (
                 <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] text-white">
                   {unreadNotifCount}
