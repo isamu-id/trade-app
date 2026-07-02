@@ -89,30 +89,29 @@ export default function OfferButton({
       return;
     }
 
-    const { data: newOffer, error: insertError } = await supabase
-      .from("trade_offers")
-      .insert({
-        offering_item_id: selectedId,
-        requesting_item_id: requestingItemId,
-        offerer_id: auth.user.id,
-      })
-      .select()
-      .single();
+    const { data: offerId, error: rpcError } = await supabase.rpc("create_trade_offer", {
+      p_offering_item_id: selectedId,
+      p_requesting_item_id: requestingItemId,
+    });
 
-    if (insertError || !newOffer) {
-      setError("オファーの送信に失敗しました。もう一度お試しください。");
+    if (rpcError || !offerId) {
+      if (rpcError?.message?.includes("locked")) {
+        setError("この商品は現在別の交渉中のため、使用できません。");
+      } else {
+        setError("オファーの送信に失敗しました。もう一度お試しください。");
+      }
       setLoading(false);
       return;
     }
 
     await supabase.from("messages").insert({
-      offer_id: newOffer.id,
+      offer_id: offerId,
       sender_id: auth.user.id,
       content: "🤝 取引が始まりました。メッセージを送って、住所や受け渡し場所を確認しましょう。",
     });
 
     setLoading(false);
-    router.push(`/offers/${newOffer.id}`);
+    router.push(`/offers/${offerId}`);
   }
 
   const availableItems = myItems.filter((i) => !i.lockReason);
