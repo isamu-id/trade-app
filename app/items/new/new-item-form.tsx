@@ -70,7 +70,7 @@ export default function NewItemForm() {
     <main className="mx-auto max-w-md px-4 py-6">
       <Link
         href="/"
-        className="mb-4 inline-flex items-center gap-1 text-sm text-gray-500"
+        className="mb-4 -ml-2 inline-flex items-center gap-1 rounded-lg px-2 py-1 text-sm text-gray-500 hover:bg-gray-100"
       >
         ← トップに戻る
       </Link>
