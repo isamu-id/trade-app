@@ -90,7 +90,7 @@ export default function NewItemForm() {
         </div>
 
         <div>
-          <label className="mb-1 block text-xs text-gray-500">タイトル</label>
+          <label className="mb-1 block text-xs text-gray-500">商品名</label>
           <input
             type="text"
             required
