@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -30,6 +30,37 @@ export default function Header({
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] =
     useState<Notification[]>(initialNotifications);
+
+  // notificationsテーブルをリアルタイム監視
+  useEffect(() => {
+    const setupChannel = async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) return;
+
+      const channel = supabase
+        .channel("notifications-realtime")
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "notifications",
+            filter: `user_id=eq.${auth.user.id}`,
+          },
+          (payload) => {
+            const newNotif = payload.new as Notification;
+            setNotifications((prev) => [newNotif, ...prev]);
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    };
+
+    setupChannel();
+  }, []);
 
   async function handleLogout() {
     await supabase.auth.signOut();
