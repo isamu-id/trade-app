@@ -77,7 +77,6 @@ export default async function OffersPage() {
       "*, offering_item:offering_item_id(id, title, images, owner_id), requesting_item:requesting_item_id(id, title, images, owner_id)"
     )
     .order("created_at", { ascending: false });
-
   const allOffers = (offers as OfferRow[] | null) ?? [];
   const myId = auth.user.id;
 
@@ -131,7 +130,7 @@ export default async function OffersPage() {
     });
   }
 
-  // 3. 取引終了したオファー → 関係する2つのアイテムに「取引済み」
+  // 3. 取引終了したオファー → 自分の商品は非表示、相手の商品だけ「取引済み」表示
   for (const offer of allOffers) {
     if (offer.status !== "accepted") continue;
     const involved =
@@ -139,7 +138,8 @@ export default async function OffersPage() {
       offer.requesting_item?.owner_id === myId;
     if (!involved) continue;
 
-    if (offer.offering_item) {
+    // offering_item: 自分が出品者なら非表示、相手の商品なら表示
+    if (offer.offering_item && offer.offering_item.owner_id !== myId) {
       cards.push({
         item: offer.offering_item,
         tag: "取引済み",
@@ -148,7 +148,9 @@ export default async function OffersPage() {
         offerIds: [offer.id],
       });
     }
-    if (offer.requesting_item) {
+
+    // requesting_item: 自分が出品者なら非表示、相手の商品なら表示
+    if (offer.requesting_item && offer.requesting_item.owner_id !== myId) {
       cards.push({
         item: offer.requesting_item,
         tag: "取引済み",
