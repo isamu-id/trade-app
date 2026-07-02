@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Item } from "@/types/database";
 
+type ItemWithLock = Item & { lockReason?: string };
+
 export default function OfferButton({
   requestingItemId,
 }: {
@@ -13,9 +15,10 @@ export default function OfferButton({
   const supabase = createClient();
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [myItems, setMyItems] = useState<Item[]>([]);
+  const [myItems, setMyItems] = useState<ItemWithLock[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -25,18 +28,60 @@ export default function OfferButton({
         router.push("/");
         return;
       }
-      const { data } = await supabase
+
+      const { data: items } = await supabase
         .from("items")
         .select("*")
         .eq("owner_id", auth.user.id)
         .eq("status", "available");
-      setMyItems((data as Item[]) ?? []);
+
+      if (!items) {
+        setMyItems([]);
+        return;
+      }
+
+      const itemIds = items.map((i) => i.id);
+
+      // ルール1: 自分がすでにオファーを出している商品（offering_item）はロック
+      const { data: outgoingOffers } = await supabase
+        .from("trade_offers")
+        .select("offering_item_id")
+        .eq("offerer_id", auth.user.id)
+        .eq("status", "pending");
+
+      const lockedAsOffering = new Set(
+        outgoingOffers?.map((o) => o.offering_item_id) ?? []
+      );
+
+      // ルール2: pending中のオファーを受けている商品（requesting_item）はロック
+      const { data: incomingOffers } = await supabase
+        .from("trade_offers")
+        .select("requesting_item_id")
+        .in("requesting_item_id", itemIds)
+        .eq("status", "pending");
+
+      const lockedAsRequesting = new Set(
+        incomingOffers?.map((o) => o.requesting_item_id) ?? []
+      );
+
+      const itemsWithLock: ItemWithLock[] = items.map((item) => {
+        if (lockedAsOffering.has(item.id)) {
+          return { ...item, lockReason: "別のオファーで提案中" };
+        }
+        if (lockedAsRequesting.has(item.id)) {
+          return { ...item, lockReason: "オファーを受け取り中" };
+        }
+        return item;
+      });
+
+      setMyItems(itemsWithLock);
     })();
   }, [open]);
 
   async function handleSubmit() {
     if (!selectedId) return;
     setLoading(true);
+    setError(null);
 
     const { data: auth } = await supabase.auth.getUser();
     if (!auth.user) {
@@ -44,8 +89,7 @@ export default function OfferButton({
       return;
     }
 
-    // オファーを作成し、作成されたオファーのIDを取得
-    const { data: newOffer, error } = await supabase
+    const { data: newOffer, error: insertError } = await supabase
       .from("trade_offers")
       .insert({
         offering_item_id: selectedId,
@@ -55,12 +99,12 @@ export default function OfferButton({
       .select()
       .single();
 
-    if (error || !newOffer) {
+    if (insertError || !newOffer) {
+      setError("オファーの送信に失敗しました。もう一度お試しください。");
       setLoading(false);
       return;
     }
 
-    // システムメッセージをチャットに保存（送信者IDはオファー送信者）
     await supabase.from("messages").insert({
       offer_id: newOffer.id,
       sender_id: auth.user.id,
@@ -68,9 +112,11 @@ export default function OfferButton({
     });
 
     setLoading(false);
-    // チャット画面に直接遷移
     router.push(`/offers/${newOffer.id}`);
   }
+
+  const availableItems = myItems.filter((i) => !i.lockReason);
+  const lockedItems = myItems.filter((i) => i.lockReason);
 
   return (
     <div>
@@ -84,16 +130,19 @@ export default function OfferButton({
       {open && (
         <div className="mt-3 rounded-lg border border-gray-200 p-3">
           <p className="mb-2 text-sm font-medium">あなたの出品物から選んでください</p>
+
           {myItems.length === 0 && (
             <p className="text-sm text-gray-500">
               出品中の商品がありません。先に出品してください。
             </p>
           )}
+
           <div className="flex flex-col gap-2">
-            {myItems.map((item) => (
+            {/* 選択可能な商品 */}
+            {availableItems.map((item) => (
               <label
                 key={item.id}
-                className="flex items-center gap-2 rounded-md border border-gray-200 p-2 text-sm"
+                className="flex cursor-pointer items-center gap-2 rounded-md border border-gray-200 p-2 text-sm hover:bg-gray-50"
               >
                 <input
                   type="radio"
@@ -104,7 +153,24 @@ export default function OfferButton({
                 {item.title}
               </label>
             ))}
+
+            {/* ロック中の商品（グレーアウト） */}
+            {lockedItems.map((item) => (
+              <div
+                key={item.id}
+                className="flex items-center justify-between rounded-md border border-gray-100 bg-gray-50 p-2 text-sm opacity-50"
+              >
+                <div className="flex items-center gap-2">
+                  <input type="radio" name="myitem" disabled />
+                  <span className="text-gray-400">{item.title}</span>
+                </div>
+                <span className="text-xs text-gray-400">{item.lockReason}</span>
+              </div>
+            ))}
           </div>
+
+          {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+
           <button
             onClick={handleSubmit}
             disabled={!selectedId || loading}
