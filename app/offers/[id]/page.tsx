@@ -5,6 +5,7 @@ import OfferActions from "./offer-actions";
 import Chat from "./chat";
 import MarkAsRead from "./mark-as-read";
 import TradeFlow from "./trade-flow";
+import OfferStatusWatcher from "./offer-status-watcher";
 
 export const dynamic = "force-dynamic";
 
@@ -83,6 +84,7 @@ export default async function OfferDetailPage({
         </div>
       )}
 
+      <OfferStatusWatcher offerId={offer.id} />
       <MarkAsRead offerId={offer.id} userId={auth.user.id} />
       <Chat
         offerId={offer.id}
