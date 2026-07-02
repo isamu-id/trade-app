@@ -56,9 +56,15 @@ export default function Chat({
     // Realtimeが届かない場合の保険として、10秒ごとに自動更新
     const interval = setInterval(fetchMessages, 10000);
 
+    // ヘッダーの更新ボタンからのイベントを受け取って即座に更新
+    const handleAppRefresh = () => fetchMessages();
+    window.addEventListener("app:refresh", handleAppRefresh);
+
     return () => {
       supabase.removeChannel(channel);
       clearInterval(interval);
+      window.removeEventListener("app:refresh", handleAppRefresh);
+    };
     };
   }, [offerId]);
 

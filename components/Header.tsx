@@ -108,6 +108,8 @@ export default function Header({
     if (refreshing) return;
     setRefreshing(true);
     router.refresh();
+    // チャットなどのクライアントコンポーネントにも更新を通知
+    window.dispatchEvent(new CustomEvent("app:refresh"));
     setTimeout(() => setRefreshing(false), 800);
   }
 
