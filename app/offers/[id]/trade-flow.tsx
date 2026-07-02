@@ -31,6 +31,11 @@ export default function TradeFlow({
   const bothShipped = offererShipped && requesterShipped;
 
   async function handleShipped() {
+    const confirmed = window.confirm(
+      "商品を発送しましたか？\n\n「OK」を押すと相手に発送通知が届きます。\n取り消しはできません。"
+    );
+    if (!confirmed) return;
+
     setLoading(true);
     const { error } = await supabase.rpc("mark_shipped", { offer_id: offerId });
     setLoading(false);
@@ -42,6 +47,11 @@ export default function TradeFlow({
   }
 
   async function handleReceived() {
+    const confirmed = window.confirm(
+      "商品を受け取りましたか？\n\n「OK」を押すと受取確認が完了します。\n両方が受け取り確認をすると取引完了になります。\n取り消しはできません。"
+    );
+    if (!confirmed) return;
+
     setLoading(true);
     const { error } = await supabase.rpc("mark_received", { offer_id: offerId });
     setLoading(false);

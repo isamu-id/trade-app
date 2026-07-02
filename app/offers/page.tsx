@@ -142,7 +142,7 @@ export default async function OffersPage() {
     if (offer.offering_item && offer.offering_item.owner_id !== myId) {
       cards.push({
         item: offer.offering_item,
-        tag: "取引済み",
+        tag: "取引中",
         href: `/offers/${offer.id}`,
         tone: "done",
         offerIds: [offer.id],
@@ -153,7 +153,7 @@ export default async function OffersPage() {
     if (offer.requesting_item && offer.requesting_item.owner_id !== myId) {
       cards.push({
         item: offer.requesting_item,
-        tag: "取引済み",
+        tag: "取引中",
         href: `/offers/${offer.id}`,
         tone: "done",
         offerIds: [offer.id],
