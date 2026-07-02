@@ -114,7 +114,7 @@ export default function Chat({
       <div className="flex h-52 flex-col gap-2 overflow-y-auto rounded-lg bg-gray-50 p-3">
         {messages.map((m) => {
           // 🤝で始まるシステムメッセージは中央に特別表示
-          const isSystem = m.content.startsWith("🤝");
+          const isSystem = m.content.startsWith("🤝") || m.content.startsWith("🎉");
           if (isSystem) {
             return (
               <div key={m.id} className="flex flex-col items-center gap-1 py-2">

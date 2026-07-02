@@ -13,7 +13,12 @@ export default function OfferActions({ offerId }: { offerId: string }) {
     setLoading(true);
 
     if (status === "accepted") {
-      // 両方の商品を確実に更新するため、Supabase側の関数を呼ぶ
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) {
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase.rpc("accept_trade_offer", {
         offer_id: offerId,
       });
@@ -22,6 +27,13 @@ export default function OfferActions({ offerId }: { offerId: string }) {
         setLoading(false);
         return;
       }
+
+      // 取引成立のシステムメッセージをチャットに保存
+      await supabase.from("messages").insert({
+        offer_id: offerId,
+        sender_id: auth.user.id,
+        content: "🎉 取引が成立しました。メッセージを送って、住所や受け渡し場所を確認しましょう。",
+      });
     } else {
       await supabase.from("trade_offers").update({ status }).eq("id", offerId);
     }
