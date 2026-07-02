@@ -107,7 +107,7 @@ export default function OfferButton({
     await supabase.from("messages").insert({
       offer_id: offerId,
       sender_id: auth.user.id,
-      content: "🤝 取引が始まりました。メッセージを送って、住所や受け渡し場所を確認しましょう。",
+      content: "🤝 取引が始まりました。メッセージを送って、取引をはじめましょう。",
     });
 
     setLoading(false);

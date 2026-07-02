@@ -32,7 +32,7 @@ export default function OfferActions({ offerId }: { offerId: string }) {
       await supabase.from("messages").insert({
         offer_id: offerId,
         sender_id: auth.user.id,
-        content: "🎉 取引が成立しました。メッセージを送って、住所や受け渡し場所を確認しましょう。",
+        content: "🎉 取引が成立しました。メッセージを送って、住所や受け渡し場所を確認しましょう。商品を発送したら発送しましたボタンを押してください。",
       });
     } else {
       await supabase.from("trade_offers").update({ status }).eq("id", offerId);
