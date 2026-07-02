@@ -22,15 +22,37 @@ export default async function HomePage() {
 
   const myItemIds = myItems?.map((item) => item.id) ?? [];
 
-  // 自分の出品物に対する「未回答」のオファー件数を取得(ヘッダーのバッジ用)
-  let pendingCount = 0;
-  if (myItemIds.length > 0) {
-    const { count } = await supabase
-      .from("trade_offers")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "pending")
-      .in("requesting_item_id", myItemIds);
-    pendingCount = count ?? 0;
+  // 自分が関わるオファーのIDを取得
+  const { data: myOffers } = await supabase
+    .from("trade_offers")
+    .select("id, requesting_item:requesting_item_id(owner_id)")
+    .or(`offerer_id.eq.${auth.user.id},requesting_item_id.in.(${myItemIds.length > 0 ? myItemIds.join(",") : "00000000-0000-0000-0000-000000000000"})`);
+
+  const myOfferIds = myOffers?.map((o) => o.id) ?? [];
+
+  // 未読バッジ: 自分がまだ既読にしていないオファーで、自分以外からの新着メッセージがある件数
+  let unreadCount = 0;
+  if (myOfferIds.length > 0) {
+    // 自分の既読記録を取得
+    const { data: reads } = await supabase
+      .from("message_reads")
+      .select("offer_id, read_at")
+      .eq("user_id", auth.user.id)
+      .in("offer_id", myOfferIds);
+
+    const readMap = new Map(reads?.map((r) => [r.offer_id, r.read_at]) ?? []);
+
+    // 各オファーに、自分の最終既読時刻より新しいメッセージが自分以外から来ているか確認
+    for (const offerId of myOfferIds) {
+      const lastRead = readMap.get(offerId) ?? "1970-01-01";
+      const { count } = await supabase
+        .from("messages")
+        .select("*", { count: "exact", head: true })
+        .eq("offer_id", offerId)
+        .neq("sender_id", auth.user.id)
+        .gt("created_at", lastRead);
+      if ((count ?? 0) > 0) unreadCount++;
+    }
   }
 
   // 商品一覧を取得
@@ -88,9 +110,9 @@ export default async function HomePage() {
             className="relative rounded-lg px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
           >
             オファー
-            {pendingCount > 0 && (
+            {unreadCount > 0 && (
               <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] text-white">
-                {pendingCount}
+                {unreadCount}
               </span>
             )}
           </Link>

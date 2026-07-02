@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import OfferActions from "./offer-actions";
 import Chat from "./chat";
+import MarkAsRead from "./mark-as-read";
 
 export const dynamic = "force-dynamic";
 
@@ -51,6 +52,7 @@ export default async function OfferDetailPage({
         )}
       </div>
 
+      <MarkAsRead offerId={offer.id} userId={auth.user.id} />
       <Chat
         offerId={offer.id}
         currentUserId={auth.user.id}

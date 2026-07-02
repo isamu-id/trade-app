@@ -87,6 +87,13 @@ export default function Chat({
         if (prev.some((m) => m.id === data.id)) return prev;
         return [...prev, data as Message];
       });
+      // 送信時にも既読時刻を更新（自分のメッセージは当然既読）
+      await supabase
+        .from("message_reads")
+        .upsert(
+          { offer_id: offerId, user_id: currentUserId, read_at: new Date().toISOString() },
+          { onConflict: "offer_id,user_id" }
+        );
     }
   }
 
