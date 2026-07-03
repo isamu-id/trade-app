@@ -104,10 +104,24 @@ export default function Header({
   const unreadNotifCount = notifications.filter((n) => !n.is_read).length;
   const [refreshing, setRefreshing] = useState(false);
 
+  async function fetchNotifications() {
+    const { data: auth } = await supabase.auth.getUser();
+    if (!auth.user) return;
+    const { data } = await supabase
+      .from("notifications")
+      .select("*")
+      .eq("user_id", auth.user.id)
+      .order("created_at", { ascending: false })
+      .limit(30);
+    if (data) setNotifications(data as Notification[]);
+  }
+
   async function handleRefresh() {
     if (refreshing) return;
     setRefreshing(true);
     router.refresh();
+    // 通知を最新状態に更新
+    await fetchNotifications();
     // チャットなどのクライアントコンポーネントにも更新を通知
     window.dispatchEvent(new CustomEvent("app:refresh"));
     setTimeout(() => setRefreshing(false), 800);
