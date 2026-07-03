@@ -250,6 +250,7 @@ export default function Header({
             ログアウト
           </button>
         </div>
+        </div>
       </div>
 
       {/* オーバーレイ */}
