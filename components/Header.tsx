@@ -52,6 +52,22 @@ export default function Header({
             setNotifications((prev) => [newNotif, ...prev]);
           }
         )
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "notifications",
+            filter: `user_id=eq.${auth.user.id}`,
+          },
+          (payload) => {
+            // 既読状態が変わったら即座にstateを更新（バッジが消える）
+            const updated = payload.new as Notification;
+            setNotifications((prev) =>
+              prev.map((n) => (n.id === updated.id ? updated : n))
+            );
+          }
+        )
         .subscribe();
 
       return () => {

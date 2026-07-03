@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import OfferButton from "./offer-button";
+import QandA from "./q-and-a";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,13 @@ export default async function ItemDetailPage({
       .maybeSingle();
     hasPendingOffer = !!existingOffer;
   }
+
+  // 質問一覧を取得
+  const { data: questions } = await supabase
+    .from("questions")
+    .select("id, question, answer, asker_id, created_at")
+    .eq("item_id", params.id)
+    .order("created_at", { ascending: true });
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-6">
@@ -92,6 +100,12 @@ export default async function ItemDetailPage({
           </p>
         </div>
       )}
+
+      <QandA
+        itemId={item.id}
+        isOwner={isOwner}
+        initialQuestions={questions ?? []}
+      />
     </main>
   );
 }
