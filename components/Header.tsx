@@ -161,7 +161,8 @@ export default function Header({
               <path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
           </button>
-          <p className="text-base font-normal tracking-tight text-neutral-900">物々交換</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/kaecco-logo.png" alt="kaecco" className="h-7 w-auto" />
         </div>
 
         <div className="flex items-center gap-1">

@@ -20,8 +20,9 @@ export default function LoginScreen() {
     <main className="flex min-h-screen flex-col items-center justify-center bg-white px-6 antialiased">
       <div className="w-full max-w-sm">
         <div className="mb-10 text-center">
-          <h1 className="text-3xl font-normal tracking-tight text-neutral-900">物々交換</h1>
-          <p className="mt-2 text-sm text-neutral-400">いらないモノが、誰かの宝物に。</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/kaecco-logo.png" alt="kaecco" className="mx-auto mb-4 h-10 w-auto" />
+          <p className="text-sm text-neutral-400">いらないモノが、誰かの宝物に。</p>
         </div>
         <button
           onClick={handleGoogleLogin}
