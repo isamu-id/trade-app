@@ -18,16 +18,34 @@ export default function NewItemForm() {
   const [desiredItemsText, setDesiredItemsText] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (loading) return; // 二重送信防止
+    if (loading || submitted) return; // 二重送信・送信済み防止
     setLoading(true);
     setError(null);
 
     const { data: auth } = await supabase.auth.getUser();
     if (!auth.user) {
+      router.push("/");
+      return;
+    }
+
+    // 直近5秒以内に同じタイトルで登録していないかチェック（ネットワークリトライ対策）
+    const fiveSecondsAgo = new Date(Date.now() - 5000).toISOString();
+    const { data: existing } = await supabase
+      .from("items")
+      .select("id")
+      .eq("owner_id", auth.user.id)
+      .eq("title", title)
+      .gte("created_at", fiveSecondsAgo)
+      .maybeSingle();
+
+    if (existing) {
+      // すでに登録済みなのでそのままトップに遷移
+      setSubmitted(true);
       router.push("/");
       return;
     }
@@ -65,6 +83,7 @@ export default function NewItemForm() {
       setError(insertError.message);
       return;
     }
+    setSubmitted(true); // 送信完了フラグを立てて以降の送信を防ぐ
     router.push("/");
   }
 
@@ -158,11 +177,11 @@ export default function NewItemForm() {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || submitted}
           className="flex items-center justify-center gap-2 rounded-lg bg-blue-600 py-3 text-white disabled:opacity-50"
         >
           {loading && <Spinner />}
-          {loading ? "出品中..." : "出品する"}
+          {loading ? "出品中..." : submitted ? "出品完了" : "出品する"}
         </button>
       </form>
     </main>
