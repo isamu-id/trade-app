@@ -150,7 +150,7 @@ export default function Header({
   return (
     <>
       {/* ヘッダー */}
-      <div className="relative flex items-center justify-between border-b border-neutral-100 bg-white px-5 py-2">
+      <div className="relative flex items-center justify-between bg-white px-5 py-2">
         <button
           onClick={() => setDrawerOpen(true)}
           aria-label="メニューを開く"
@@ -164,7 +164,7 @@ export default function Header({
         {/* ロゴを中央に絶対配置 */}
         <div className="absolute left-1/2 -translate-x-1/2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/kaecco-logo.png" alt="kaecco" className="h-16 w-auto" />
+          <img src="/kaecco-logo.png" alt="kaecco" className="h-40 w-auto" />
         </div>
 
         <div className="flex items-center gap-1">

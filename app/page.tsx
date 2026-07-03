@@ -116,7 +116,7 @@ export default async function HomePage() {
         />
 
         {/* 検索バー */}
-        <div className="sticky top-0 z-10 bg-white/85 px-5 py-4 backdrop-blur-md sm:px-8">
+        <div className="sticky top-0 z-10 border-b border-neutral-100 bg-white/85 px-5 py-4 backdrop-blur-md sm:px-8">
           <div className="relative">
             <svg
               aria-hidden="true"
