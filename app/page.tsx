@@ -14,7 +14,6 @@ export default async function HomePage() {
     return <LoginScreen />;
   }
 
-  // 自分の出品物のID一覧を取得
   const { data: myItems } = await supabase
     .from("items")
     .select("id")
@@ -22,7 +21,6 @@ export default async function HomePage() {
 
   const myItemIds = myItems?.map((item) => item.id) ?? [];
 
-  // 自分が関わるオファーのIDを取得
   const { data: myOffers } = await supabase
     .from("trade_offers")
     .select("id, requesting_item:requesting_item_id(owner_id)")
@@ -30,10 +28,8 @@ export default async function HomePage() {
 
   const myOfferIds = myOffers?.map((o) => o.id) ?? [];
 
-  // 未読バッジ: 自分がまだ既読にしていないオファーで、自分以外からの新着メッセージがある件数
   let unreadCount = 0;
   if (myOfferIds.length > 0) {
-    // 自分の既読記録を取得
     const { data: reads } = await supabase
       .from("message_reads")
       .select("offer_id, read_at")
@@ -42,7 +38,6 @@ export default async function HomePage() {
 
     const readMap = new Map(reads?.map((r) => [r.offer_id, r.read_at]) ?? []);
 
-    // 各オファーに、自分の最終既読時刻より新しいメッセージが自分以外から来ているか確認
     for (const offerId of myOfferIds) {
       const lastRead = readMap.get(offerId) ?? "1970-01-01";
       const { count } = await supabase
@@ -55,14 +50,12 @@ export default async function HomePage() {
     }
   }
 
-  // 商品一覧を取得
   const { data: items } = await supabase
     .from("items")
     .select("*")
     .eq("status", "available")
     .order("created_at", { ascending: false });
 
-  // 「交渉中」と表示する商品IDを取得(自分が送った未回答オファー + 自分の商品に来た未回答オファー)
   let pendingItemIds: string[] = [];
   const { data: myPendingOffers } = await supabase
     .from("trade_offers")
@@ -83,11 +76,9 @@ export default async function HomePage() {
 
   const itemsByCategory = CATEGORIES.map((category) => ({
     category,
-    items:
-      (items as Item[] | null)?.filter((i) => i.category === category) ?? [],
+    items: (items as Item[] | null)?.filter((i) => i.category === category) ?? [],
   })).filter((group) => group.items.length > 0);
 
-  // 通知を取得
   const { data: notifications } = await supabase
     .from("notifications")
     .select("*")
@@ -95,7 +86,6 @@ export default async function HomePage() {
     .order("created_at", { ascending: false })
     .limit(30);
 
-  // 未回答の受信オファー件数（ドロワーのバッジ用）
   let pendingOfferCount = 0;
   if (myItemIds.length > 0) {
     const { count } = await supabase
@@ -107,111 +97,82 @@ export default async function HomePage() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl">
-      <Header
-        unreadCount={unreadCount}
-        initialNotifications={notifications ?? []}
-        pendingOfferCount={pendingOfferCount}
-      />
-
-      <div className="px-4 py-6">
-        <input
-          type="text"
-          placeholder="何を探していますか?"
-          className="mb-6 w-full rounded-lg border border-gray-300 px-4 py-3"
+    <main className="min-h-screen bg-white font-normal text-neutral-800 antialiased">
+      <div className="mx-auto max-w-3xl">
+        <Header
+          unreadCount={unreadCount}
+          initialNotifications={notifications ?? []}
+          pendingOfferCount={pendingOfferCount}
         />
-
-        {/* カテゴリチップ */}
-        <div className="mb-6 flex gap-5 overflow-x-auto pb-2">
-          {CATEGORIES.map((category) => (
-            <div
-              key={category}
-              className="flex flex-shrink-0 flex-col items-center gap-1"
-            >
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 text-xs text-gray-500">
-                {category.slice(0, 2)}
-              </div>
-              <span className="text-xs">{category}</span>
+        <div className="sticky top-0 z-10 border-b border-neutral-100 bg-white/90 px-5 py-3 backdrop-blur-md">
+          <div className="relative">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-400">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+            </svg>
+            <input type="text" placeholder="何を探していますか?" className="w-full rounded-full border border-neutral-200 bg-neutral-50 py-2.5 pl-11 pr-4 text-sm outline-none transition placeholder:text-neutral-400 focus:border-rose-300 focus:bg-white focus:ring-2 focus:ring-rose-50" />
+          </div>
+        </div>
+        <div className="px-5 py-8">
+          <div className="mb-10">
+            <h2 className="mb-4 text-base font-normal tracking-tight text-neutral-500">カテゴリから探す</h2>
+            <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {CATEGORIES.map((category) => (
+                <button key={category} type="button" className="flex-shrink-0 rounded-full border border-neutral-200 bg-white px-5 py-2 text-sm text-neutral-600 shadow-sm transition hover:border-rose-300 hover:text-rose-500 hover:shadow-md">
+                  {category}
+                </button>
+              ))}
             </div>
+          </div>
+          {itemsByCategory.length === 0 && (
+            <div className="rounded-2xl border border-dashed border-neutral-200 py-16 text-center">
+              <p className="text-sm text-neutral-400">まだ出品がありません。</p>
+            </div>
+          )}
+          {itemsByCategory.map((group) => (
+            <section key={group.category} className="mb-10">
+              <div className="mb-4 flex items-baseline justify-between">
+                <h2 className="text-lg font-normal tracking-tight text-neutral-900">{group.category}</h2>
+                <span className="text-xs text-neutral-400">{group.items.length}件</span>
+              </div>
+              <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {group.items.map((item) => {
+                  const isOwner = auth.user?.id === item.owner_id;
+                  const isNegotiating = pendingItemIds.includes(item.id);
+                  const cardContent = (
+                    <>
+                      <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-neutral-100">
+                        {item.images?.[0] ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={item.images[0]} alt={item.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                        ) : (
+                          <span className="flex h-full w-full items-center justify-center text-xs text-neutral-400">画像なし</span>
+                        )}
+                      </div>
+                      <p className="mt-2 truncate px-0.5 text-sm text-neutral-800">{item.title}</p>
+                    </>
+                  );
+                  if (isOwner) return (
+                    <div key={item.id} className="group relative w-40 flex-shrink-0 cursor-not-allowed opacity-50">
+                      {cardContent}
+                      <span className="absolute left-2 top-2 rounded-full bg-neutral-800/80 px-2.5 py-0.5 text-[10px] text-white">自分の出品</span>
+                    </div>
+                  );
+                  if (isNegotiating) return (
+                    <div key={item.id} className="group relative w-40 flex-shrink-0 cursor-not-allowed opacity-50">
+                      {cardContent}
+                      <span className="absolute left-2 top-2 rounded-full bg-rose-500/90 px-2.5 py-0.5 text-[10px] text-white">交渉中</span>
+                    </div>
+                  );
+                  return (
+                    <Link key={item.id} href={`/items/${item.id}`} className="group w-40 flex-shrink-0 transition duration-200 hover:-translate-y-0.5">
+                      {cardContent}
+                    </Link>
+                  );
+                })}
+              </div>
+            </section>
           ))}
         </div>
-
-        {/* カテゴリごとの横スクロールセクション */}
-        {itemsByCategory.length === 0 && (
-          <p className="text-sm text-gray-500">まだ出品がありません。</p>
-        )}
-
-        {itemsByCategory.map((group) => (
-          <section key={group.category} className="mb-6">
-            <p className="mb-2 text-sm font-medium">{group.category}</p>
-            <div className="flex gap-3 overflow-x-auto pb-2">
-              {group.items.map((item) => {
-                const isOwner = auth.user?.id === item.owner_id;
-                const isNegotiating = pendingItemIds.includes(item.id);
-
-                const cardContent = (
-                  <>
-                    <div className="flex h-20 items-center justify-center bg-gray-100">
-                      {item.images?.[0] ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={item.images[0]}
-                          alt={item.title}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-xs text-gray-400">画像なし</span>
-                      )}
-                    </div>
-                    <p className="truncate p-2 text-xs font-medium">
-                      {item.title}
-                    </p>
-                  </>
-                );
-
-                if (isOwner) {
-                  return (
-                    <div
-                      key={item.id}
-                      title="自分の出品物のため選択できません"
-                      className="relative w-32 flex-shrink-0 cursor-not-allowed overflow-hidden rounded-xl border border-gray-200 opacity-50"
-                    >
-                      {cardContent}
-                      <span className="absolute left-1 top-1 rounded-md bg-gray-700/80 px-1.5 py-0.5 text-[10px] text-white">
-                        自分の出品
-                      </span>
-                    </div>
-                  );
-                }
-
-                if (isNegotiating) {
-                  return (
-                    <div
-                      key={item.id}
-                      title="すでにオファーを送っているため選択できません"
-                      className="relative w-32 flex-shrink-0 cursor-not-allowed overflow-hidden rounded-xl border border-gray-200 opacity-50"
-                    >
-                      {cardContent}
-                      <span className="absolute left-1 top-1 rounded-md bg-red-600/90 px-1.5 py-0.5 text-[10px] text-white">
-                        交渉中
-                      </span>
-                    </div>
-                  );
-                }
-
-                return (
-                  <Link
-                    key={item.id}
-                    href={`/items/${item.id}`}
-                    className="w-32 flex-shrink-0 overflow-hidden rounded-xl border border-gray-200"
-                  >
-                    {cardContent}
-                  </Link>
-                );
-              })}
-            </div>
-          </section>
-        ))}
       </div>
     </main>
   );

@@ -9,20 +9,14 @@ import OfferStatusWatcher from "./offer-status-watcher";
 
 export const dynamic = "force-dynamic";
 
-export default async function OfferDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function OfferDetailPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) redirect("/");
 
   const { data: offer } = await supabase
     .from("trade_offers")
-    .select(
-      "*, offering_item:offering_item_id(title), requesting_item:requesting_item_id(title, owner_id)"
-    )
+    .select("*, offering_item:offering_item_id(title), requesting_item:requesting_item_id(title, owner_id)")
     .eq("id", params.id)
     .single();
 
@@ -38,59 +32,47 @@ export default async function OfferDetailPage({
     .order("created_at", { ascending: true });
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-6">
-      <Link
-        href="/offers"
-        className="mb-4 -ml-2 inline-flex items-center gap-1 rounded-lg px-2 py-1 text-sm text-gray-500 hover:bg-gray-100"
-      >
-        ← オファー一覧に戻る
-      </Link>
+    <main className="min-h-screen bg-white antialiased">
+      <div className="mx-auto max-w-2xl px-5 py-8">
+        <Link href="/offers" className="-ml-1 mb-6 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm text-neutral-500 transition hover:bg-neutral-100">
+          ← オファー一覧に戻る
+        </Link>
 
-      <div className="mb-3 flex items-center justify-between">
-        <p className="text-sm font-medium">
-          {offer.offering_item?.title} ⇄ {offer.requesting_item?.title}
-        </p>
-        {isRequestedOwner && offer.status === "pending" && (
-          <OfferActions offerId={offer.id} />
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-lg font-normal tracking-tight text-neutral-900">
+            {offer.offering_item?.title} ⇄ {offer.requesting_item?.title}
+          </h1>
+          {isRequestedOwner && offer.status === "pending" && <OfferActions offerId={offer.id} />}
+        </div>
+
+        {offer.status === "rejected" && (
+          <div className="mb-5 rounded-2xl bg-neutral-50 px-4 py-3">
+            <p className="text-sm text-neutral-500">このオファーは拒否されました</p>
+          </div>
         )}
+
+        {offer.status === "accepted" && (
+          <TradeFlow
+            offerId={offer.id}
+            isOfferer={isOfferer}
+            offererShipped={offer.offerer_shipped ?? false}
+            requesterShipped={offer.requester_shipped ?? false}
+            offererReceived={offer.offerer_received ?? false}
+            requesterReceived={offer.requester_received ?? false}
+          />
+        )}
+
+        {offer.status === "completed" && (
+          <div className="mb-5 rounded-2xl bg-emerald-50 px-4 py-4">
+            <p className="text-sm font-normal text-emerald-700">🎉 取引が完了しました</p>
+            <p className="mt-1 text-xs text-emerald-500">お互いの商品が無事に届きました。ありがとうございました！</p>
+          </div>
+        )}
+
+        <OfferStatusWatcher offerId={offer.id} />
+        <MarkAsRead offerId={offer.id} userId={auth.user.id} />
+        <Chat offerId={offer.id} currentUserId={auth.user.id} initialMessages={messages ?? []} />
       </div>
-
-      {/* 拒否された場合 */}
-      {offer.status === "rejected" && (
-        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3">
-          <p className="text-sm text-red-700">❌ このオファーは拒否されました</p>
-        </div>
-      )}
-
-      {/* 承諾後の取引フロー */}
-      {(offer.status === "accepted") && (
-        <TradeFlow
-          offerId={offer.id}
-          isOfferer={isOfferer}
-          offererShipped={offer.offerer_shipped ?? false}
-          requesterShipped={offer.requester_shipped ?? false}
-          offererReceived={offer.offerer_received ?? false}
-          requesterReceived={offer.requester_received ?? false}
-        />
-      )}
-
-      {/* 取引完了 */}
-      {offer.status === "completed" && (
-        <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3">
-          <p className="text-sm font-medium text-blue-800">🎉 取引が完了しました</p>
-          <p className="mt-1 text-xs text-blue-600">
-            お互いの商品が無事に届きました。ありがとうございました！
-          </p>
-        </div>
-      )}
-
-      <OfferStatusWatcher offerId={offer.id} />
-      <MarkAsRead offerId={offer.id} userId={auth.user.id} />
-      <Chat
-        offerId={offer.id}
-        currentUserId={auth.user.id}
-        initialMessages={messages ?? []}
-      />
     </main>
   );
 }

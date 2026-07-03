@@ -7,13 +7,8 @@ import RefreshButton from "./refresh-button";
 
 export const dynamic = "force-dynamic";
 
-export default async function ItemDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function ItemDetailPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
-
   const { data: item } = await supabase
     .from("items")
     .select("*, profiles:owner_id(username)")
@@ -25,7 +20,6 @@ export default async function ItemDetailPage({
   const { data: auth } = await supabase.auth.getUser();
   const isOwner = auth.user?.id === item.owner_id;
 
-  // 自分がこの商品に対して、すでにオファーを送っているか確認
   let hasPendingOffer = false;
   if (auth.user && !isOwner) {
     const { data: existingOffer } = await supabase
@@ -38,7 +32,6 @@ export default async function ItemDetailPage({
     hasPendingOffer = !!existingOffer;
   }
 
-  // 質問一覧を取得
   const { data: questions } = await supabase
     .from("questions")
     .select("id, question, answer, asker_id, created_at")
@@ -46,70 +39,43 @@ export default async function ItemDetailPage({
     .order("created_at", { ascending: true });
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-6">
-      <div className="mb-4 flex items-center justify-between">
-        <Link
-          href="/"
-          className="-ml-2 inline-flex items-center gap-1 rounded-lg px-2 py-1 text-sm text-gray-500 hover:bg-gray-100"
-        >
-          ← トップに戻る
-        </Link>
-        <RefreshButton />
+    <main className="min-h-screen bg-white antialiased">
+      <div className="mx-auto max-w-2xl px-5 py-8">
+        <div className="mb-6 flex items-center justify-between">
+          <Link href="/" className="-ml-1 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm text-neutral-500 transition hover:bg-neutral-100">
+            ← トップに戻る
+          </Link>
+          <RefreshButton />
+        </div>
+        <div className="flex gap-5">
+          <div className="h-40 w-40 flex-shrink-0 overflow-hidden rounded-2xl bg-neutral-100">
+            {item.images?.[0] ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={item.images[0]} alt={item.title} className="h-full w-full object-cover" />
+            ) : (
+              <span className="flex h-full w-full items-center justify-center text-xs text-neutral-400">画像なし</span>
+            )}
+          </div>
+          <div className="flex-1">
+            <h1 className="mb-1.5 text-xl font-normal tracking-tight text-neutral-900">{item.title}</h1>
+            <p className="mb-3 text-sm text-neutral-400">{item.category} ・ {item.condition} ・ {item.profiles?.username ?? "不明"}</p>
+            <p className="mb-4 text-sm leading-relaxed text-neutral-600">{item.description}</p>
+            {isOwner && (
+              <span className="inline-block rounded-full bg-neutral-100 px-3 py-1 text-xs text-neutral-500">自分が出品した商品です</span>
+            )}
+            {!isOwner && hasPendingOffer && (
+              <span className="inline-block rounded-full bg-rose-50 px-3 py-1 text-xs text-rose-500">交渉中です</span>
+            )}
+            {!isOwner && !hasPendingOffer && <OfferButton requestingItemId={item.id} />}
+          </div>
+        </div>
+        {item.desired_items_text && (
+          <div className="mt-5 rounded-2xl bg-neutral-50 px-4 py-3">
+            <p className="text-sm text-neutral-500">希望する交換品: {item.desired_items_text}</p>
+          </div>
+        )}
+        <QandA itemId={item.id} isOwner={isOwner} initialQuestions={questions ?? []} />
       </div>
-
-      <div className="flex gap-4">
-        <div className="flex h-36 w-36 flex-shrink-0 items-center justify-center rounded-xl bg-gray-100">
-          {item.images?.[0] ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={item.images[0]}
-              alt={item.title}
-              className="h-full w-full rounded-xl object-cover"
-            />
-          ) : (
-            <span className="text-xs text-gray-400">画像なし</span>
-          )}
-        </div>
-
-        <div className="flex-1">
-          <h1 className="mb-1 text-lg font-medium">{item.title}</h1>
-          <p className="mb-2 text-sm text-gray-500">
-            {item.category} ・ 状態:{item.condition} ・ 出品者:
-            {item.profiles?.username ?? "不明"}
-          </p>
-          <p className="mb-4 text-sm leading-relaxed">{item.description}</p>
-
-          {isOwner && (
-            <p className="mb-3 inline-block rounded-md bg-gray-100 px-2 py-1 text-xs text-gray-600">
-              自分が出品した商品です
-            </p>
-          )}
-
-          {!isOwner && hasPendingOffer && (
-            <p className="mb-3 inline-block rounded-md bg-yellow-100 px-2 py-1 text-xs text-yellow-700">
-              交渉中です
-            </p>
-          )}
-
-          {!isOwner && !hasPendingOffer && (
-            <OfferButton requestingItemId={item.id} />
-          )}
-        </div>
-      </div>
-
-      {item.desired_items_text && (
-        <div className="mt-4 border-t border-gray-200 pt-3">
-          <p className="text-sm text-gray-600">
-            欲しいもの:{item.desired_items_text}
-          </p>
-        </div>
-      )}
-
-      <QandA
-        itemId={item.id}
-        isOwner={isOwner}
-        initialQuestions={questions ?? []}
-      />
     </main>
   );
 }
