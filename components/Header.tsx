@@ -162,7 +162,7 @@ export default function Header({
             </svg>
           </button>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/kaecco-logo.png" alt="kaecco" className="h-20 w-auto" />
+          <img src="/kaecco-logo.png" alt="kaecco" style={{ height: "240px", width: "auto" }} />
         </div>
 
         <div className="flex items-center gap-1">
