@@ -108,7 +108,7 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-white font-sans text-neutral-800 antialiased">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-3xl">
         <Header
           unreadCount={unreadCount}
           initialNotifications={notifications ?? []}
@@ -116,8 +116,8 @@ export default async function HomePage() {
         />
 
         {/* 検索バー */}
-        <div className="sticky top-0 z-10 border-b border-neutral-100 bg-white/85 px-5 py-4 backdrop-blur-md sm:px-10">
-          <div className="relative mx-auto max-w-xl">
+        <div className="sticky top-0 z-10 border-b border-neutral-100 bg-white/85 px-5 py-4 backdrop-blur-md sm:px-8">
+          <div className="relative">
             <svg
               aria-hidden="true"
               viewBox="0 0 24 24"
@@ -139,18 +139,18 @@ export default async function HomePage() {
           </div>
         </div>
 
-        <div className="px-5 py-12 sm:px-10 sm:py-16">
+        <div className="px-5 py-6 sm:px-8">
           {/* カテゴリチップ */}
-          <div className="mb-16">
-            <h2 className="mb-6 text-lg font-medium tracking-tight text-neutral-900">
+          <div className="mb-8">
+            <h2 className="mb-4 text-base font-medium text-neutral-900">
               カテゴリから探す
             </h2>
-            <div className="-mx-5 flex gap-2.5 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:-mx-10 sm:px-10 [&::-webkit-scrollbar]:hidden">
+            <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {CATEGORIES.map((category, i) => (
                 <button
                   key={category}
                   type="button"
-                  className="flex flex-shrink-0 items-center gap-2 rounded-full border border-neutral-200 bg-white px-5 py-2.5 text-sm font-normal text-neutral-600 transition hover:border-neutral-900 hover:text-neutral-900"
+                  className="flex flex-shrink-0 items-center gap-2 rounded-full border border-neutral-200 bg-white px-4 py-2 text-sm font-normal text-neutral-600 transition hover:border-neutral-900 hover:text-neutral-900"
                 >
                   <span className={`h-1.5 w-1.5 rounded-full ${dotColors[i % dotColors.length]}`} />
                   {category}
@@ -160,15 +160,15 @@ export default async function HomePage() {
           </div>
 
           {itemsByCategory.length === 0 && (
-            <div className="rounded-3xl border border-dashed border-neutral-200 bg-neutral-50/60 py-24 text-center">
+            <div className="rounded-2xl border border-dashed border-neutral-200 py-16 text-center">
               <p className="text-sm text-neutral-500">まだ出品がありません。</p>
             </div>
           )}
 
           {itemsByCategory.map((group, gi) => (
-            <section key={group.category} className="mb-16">
-              <div className="mb-6 flex items-baseline justify-between">
-                <h2 className="flex items-center gap-2.5 text-xl font-medium tracking-tight text-neutral-900">
+            <section key={group.category} className="mb-8">
+              <div className="mb-4 flex items-baseline justify-between">
+                <h2 className="flex items-center gap-2 text-lg font-medium text-neutral-900">
                   <span className={`h-2 w-2 rounded-full ${dotColors[gi % dotColors.length]}`} />
                   {group.category}
                 </h2>
@@ -176,7 +176,7 @@ export default async function HomePage() {
                   {group.items.length}件
                 </span>
               </div>
-              <div className="-mx-5 flex gap-6 overflow-x-auto px-5 pb-4 [scrollbar-width:none] sm:-mx-10 sm:px-10 [&::-webkit-scrollbar]:hidden">
+              <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {group.items.map((item) => {
                   const isOwner = auth.user?.id === item.owner_id;
                   const isNegotiating = pendingItemIds.includes(item.id);
@@ -208,10 +208,10 @@ export default async function HomePage() {
                       <div
                         key={item.id}
                         title="自分の出品物のため選択できません"
-                        className="group relative w-44 flex-shrink-0 cursor-not-allowed opacity-50 sm:w-52"
+                        className="group relative w-40 flex-shrink-0 cursor-not-allowed opacity-50"
                       >
                         {cardContent}
-                        <span className="absolute left-3 top-3 rounded-full bg-neutral-900/80 px-3 py-1 text-[11px] font-normal text-white backdrop-blur-sm">
+                        <span className="absolute left-2 top-2 rounded-full bg-neutral-900/80 px-2.5 py-0.5 text-[10px] font-normal text-white backdrop-blur-sm">
                           自分の出品
                         </span>
                       </div>
@@ -223,10 +223,10 @@ export default async function HomePage() {
                       <div
                         key={item.id}
                         title="すでにオファーを送っているため選択できません"
-                        className="group relative w-44 flex-shrink-0 cursor-not-allowed opacity-50 sm:w-52"
+                        className="group relative w-40 flex-shrink-0 cursor-not-allowed opacity-50"
                       >
                         {cardContent}
-                        <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[11px] font-medium text-neutral-800 shadow-sm backdrop-blur-sm">
+                        <span className="absolute left-2 top-2 rounded-full bg-white/90 px-2.5 py-0.5 text-[10px] font-medium text-neutral-800 shadow-sm backdrop-blur-sm">
                           交渉中
                         </span>
                       </div>
@@ -237,7 +237,7 @@ export default async function HomePage() {
                     <Link
                       key={item.id}
                       href={`/items/${item.id}`}
-                      className="group w-44 flex-shrink-0 transition sm:w-52"
+                      className="group w-40 flex-shrink-0 transition duration-200 hover:-translate-y-0.5"
                     >
                       {cardContent}
                     </Link>
