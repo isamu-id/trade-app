@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import OfferButton from "./offer-button";
 import QandA from "./q-and-a";
+import RefreshButton from "./refresh-button";
 
 export const dynamic = "force-dynamic";
 
@@ -46,12 +47,15 @@ export default async function ItemDetailPage({
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-6">
-      <Link
-        href="/"
-        className="mb-4 -ml-2 inline-flex items-center gap-1 rounded-lg px-2 py-1 text-sm text-gray-500 hover:bg-gray-100"
-      >
-        ← トップに戻る
-      </Link>
+      <div className="mb-4 flex items-center justify-between">
+        <Link
+          href="/"
+          className="-ml-2 inline-flex items-center gap-1 rounded-lg px-2 py-1 text-sm text-gray-500 hover:bg-gray-100"
+        >
+          ← トップに戻る
+        </Link>
+        <RefreshButton />
+      </div>
 
       <div className="flex gap-4">
         <div className="flex h-36 w-36 flex-shrink-0 items-center justify-center rounded-xl bg-gray-100">
