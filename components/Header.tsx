@@ -149,23 +149,24 @@ export default function Header({
 
   return (
     <>
-      {/* ヘッダー */}
-      <div className="relative flex items-center justify-between bg-white px-5 py-2">
-        <button
-          onClick={() => setDrawerOpen(true)}
-          aria-label="メニューを開く"
-          className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-neutral-100"
-        >
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-            <path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-          </svg>
-        </button>
-
-        {/* ロゴを中央に絶対配置 */}
-        <div className="absolute left-1/2 -translate-x-1/2">
+      {/* ヘッダー: 上段ロゴ・下段ナビ */}
+      <div className="bg-white">
+        {/* 上段: ロゴ中央 */}
+        <div className="flex justify-center px-5 pt-4 pb-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/kaecco-logo.png" alt="kaecco" className="h-40 w-auto" />
         </div>
+        {/* 下段: ハンバーガー・ボタン類 */}
+        <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-2">
+          <button
+            onClick={() => setDrawerOpen(true)}
+            aria-label="メニューを開く"
+            className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-neutral-100"
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </button>
 
         <div className="flex items-center gap-1">
           {/* 更新ボタン */}
