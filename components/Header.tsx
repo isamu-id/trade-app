@@ -10,6 +10,7 @@ type Notification = {
   title: string;
   body: string;
   offer_id: string | null;
+  item_id: string | null;
   is_read: boolean;
   created_at: string;
 };
@@ -113,6 +114,9 @@ export default function Header({
     }
     if (notif.offer_id) {
       router.push(`/offers/${notif.offer_id}`);
+      setNotifOpen(false);
+    } else if (notif.item_id) {
+      router.push(`/items/${notif.item_id}`);
       setNotifOpen(false);
     }
   }
