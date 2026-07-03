@@ -65,7 +65,6 @@ export default function Chat({
       clearInterval(interval);
       window.removeEventListener("app:refresh", handleAppRefresh);
     };
-    };
   }, [offerId]);
 
   useEffect(() => {
