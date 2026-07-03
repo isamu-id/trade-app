@@ -116,7 +116,7 @@ export default async function HomePage() {
         />
 
         {/* 検索バー */}
-        <div className="sticky top-0 z-10 border-b border-neutral-100 bg-white/85 px-5 py-5 backdrop-blur-md sm:px-10">
+        <div className="sticky top-0 z-10 border-b border-neutral-100 bg-white/85 px-5 py-4 backdrop-blur-md sm:px-10">
           <div className="relative mx-auto max-w-xl">
             <svg
               aria-hidden="true"
@@ -126,7 +126,7 @@ export default async function HomePage() {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="pointer-events-none absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
+              className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
             >
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.3-4.3" />
@@ -134,7 +134,7 @@ export default async function HomePage() {
             <input
               type="text"
               placeholder="何を探していますか?"
-              className="w-full rounded-full border border-neutral-200 bg-white py-3.5 pl-13 pr-5 text-sm text-neutral-800 shadow-sm outline-none transition placeholder:text-neutral-400 hover:border-neutral-300 hover:shadow focus:border-neutral-400 focus:ring-2 focus:ring-neutral-100"
+              className="w-full rounded-full border border-neutral-200 bg-white py-3 pl-11 pr-5 text-sm text-neutral-800 shadow-sm outline-none transition placeholder:text-neutral-400 hover:border-neutral-300 hover:shadow focus:border-neutral-400 focus:ring-2 focus:ring-neutral-100"
             />
           </div>
         </div>
