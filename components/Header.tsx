@@ -149,15 +149,15 @@ export default function Header({
 
   return (
     <>
-      {/* ヘッダー: 上段ロゴ・下段ナビ */}
-      <div className="bg-white">
+      {/* ヘッダー: sticky + すりガラス効果 */}
+      <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md">
         {/* 上段: ロゴ中央 */}
         <div className="flex justify-center px-5 pt-4 pb-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/kaecco-logo.png" alt="kaecco" className="h-40 w-auto" />
         </div>
         {/* 下段: ハンバーガー・ボタン類 */}
-        <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-2">
+        <div className="flex items-center justify-between border-b border-hairline px-5 py-2">
           <button
             onClick={() => setDrawerOpen(true)}
             aria-label="メニューを開く"
