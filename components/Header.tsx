@@ -156,8 +156,19 @@ export default function Header({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/kaecco-logo.svg" alt="kaecco" className="h-12 w-auto" />
 
-          {/* 右: 更新・お知らせ（アイコンのみ）・ログアウト・ハンバーガー */}
+          {/* 右: ハンバーガー・更新・お知らせ（アイコンのみ）・ログアウト */}
           <div className="flex items-center gap-1">
+            {/* ハンバーガー */}
+            <button
+              onClick={() => setDrawerOpen(true)}
+              aria-label="メニューを開く"
+              className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-neutral-100"
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                <path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </button>
+
             {/* 更新ボタン（アイコンのみ） */}
             <button
               onClick={handleRefresh}
@@ -236,28 +247,17 @@ export default function Header({
             <button onClick={handleLogout} className="rounded-full px-2.5 py-1.5 text-xs text-neutral-500 hover:bg-neutral-100">
               ログアウト
             </button>
-
-            {/* ハンバーガー */}
-            <button
-              onClick={() => setDrawerOpen(true)}
-              aria-label="メニューを開く"
-              className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-neutral-100"
-            >
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-                <path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
-            </button>
           </div>
         </div>
       </div>
 
       {/* オーバーレイ */}
       {(drawerOpen || notifOpen) && (
-        <div className="fixed inset-0 z-10 bg-black/20" onClick={() => { setDrawerOpen(false); setNotifOpen(false); }} />
+        <div className="fixed inset-x-0 bottom-0 top-[65px] z-10 bg-black/20" onClick={() => { setDrawerOpen(false); setNotifOpen(false); }} />
       )}
 
       {/* ドロワー */}
-      <div className={`fixed left-0 top-0 z-20 h-full overflow-hidden bg-white shadow-xl transition-all duration-200 ${drawerOpen ? "w-56" : "w-0"}`}>
+      <div className={`fixed left-0 top-[65px] z-20 h-[calc(100vh-65px)] overflow-hidden bg-white shadow-xl transition-all duration-200 ${drawerOpen ? "w-56" : "w-0"}`}>
         <div className="w-56 p-5">
           <div className="mb-6 flex items-center justify-between">
             <p className="text-sm font-normal text-neutral-900">メニュー</p>
