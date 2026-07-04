@@ -152,12 +152,12 @@ export default function Header({
       {/* ヘッダー: sticky + すりガラス効果 */}
       <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md">
         {/* 上段: ロゴ中央 */}
-        <div className="flex justify-center px-5 pt-4 pb-2">
+        <div className="flex justify-center px-5 pt-3 pb-1">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/kaecco-logo.png" alt="kaecco" className="h-40 w-auto" />
+          <img src="/kaecco-logo.svg" alt="kaecco" className="h-40 w-auto" />
         </div>
         {/* 下段: ハンバーガー・ボタン類 */}
-        <div className="flex items-center justify-between border-b border-hairline px-5 py-2">
+        <div className="flex items-center justify-between border-b border-hairline px-5 py-1.5">
           <button
             onClick={() => setDrawerOpen(true)}
             aria-label="メニューを開く"
@@ -207,7 +207,7 @@ export default function Header({
               </svg>
               <span>お知らせ</span>
               {unreadNotifCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] text-white">
+                <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] text-white">
                   {unreadNotifCount}
                 </span>
               )}

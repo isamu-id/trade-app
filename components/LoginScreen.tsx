@@ -21,7 +21,7 @@ export default function LoginScreen() {
       <div className="w-full max-w-sm">
         <div className="mb-10 text-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/kaecco-logo.png" alt="kaecco" className="mx-auto mb-6 h-16 w-auto" />
+          <img src="/kaecco-logo.svg" alt="kaecco" className="mx-auto mb-6 h-16 w-auto" />
           <p className="text-sm text-subtle">いらないモノが、誰かの宝物に。</p>
         </div>
         <button
