@@ -151,24 +151,36 @@ export default function Header({
     <>
       {/* ヘッダー: sticky + すりガラス効果 */}
       <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md">
-        {/* 上段: ロゴ中央 */}
-        <div className="flex justify-start px-5 pt-2 pb-1">
+        {/* 上段: ロゴ左 */}
+        <div className="flex justify-start px-5 pt-1 pb-0.5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/kaecco-logo.svg" alt="kaecco" className="h-14 w-auto" />
         </div>
-        {/* 下段: ボタン類（左）・ハンバーガー（右端） */}
-        <div className="flex items-center justify-between border-b border-hairline px-5 py-1.5">
+        {/* 下段: ハンバーガー（左）・ボタン類（右） */}
+        <div className="flex items-center justify-between border-b border-hairline px-5 py-1">
+
+          {/* ハンバーガー（左端） */}
+          <button
+            onClick={() => setDrawerOpen(true)}
+            aria-label="メニューを開く"
+            className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-neutral-100"
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </button>
+
           <div className="flex items-center gap-1">
-            {/* 更新ボタン（アイコンのみ） */}
+            {/* 更新ボタン（アイコン＋テキスト） */}
             <button
               onClick={handleRefresh}
               disabled={refreshing}
               aria-label="更新"
-              className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-neutral-100 disabled:opacity-50"
+              className="flex items-center gap-1 rounded-full px-2.5 py-1.5 text-xs text-neutral-500 hover:bg-neutral-100 disabled:opacity-50"
             >
               <svg
-                width="15"
-                height="15"
+                width="13"
+                height="13"
                 viewBox="0 0 18 18"
                 fill="none"
                 aria-hidden="true"
@@ -177,9 +189,10 @@ export default function Header({
                 <path d="M14.5 9a5.5 5.5 0 1 1-1.1-3.3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                 <path d="M14.5 4v2.5H12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
+              更新
             </button>
 
-            {/* 通知ベルボタン（アイコンのみ） */}
+            {/* 通知ベルボタン（アイコン＋テキスト） */}
             <div className="relative">
               <button
                 onClick={() => {
@@ -188,14 +201,15 @@ export default function Header({
                   if (!notifOpen && unreadNotifCount > 0) markAllRead();
                 }}
                 aria-label="お知らせ"
-                className="relative flex h-8 w-8 items-center justify-center rounded-full hover:bg-neutral-100"
+                className="relative flex items-center gap-1 rounded-full px-2.5 py-1.5 text-xs text-neutral-500 hover:bg-neutral-100"
               >
-                <svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 18 18" fill="none" aria-hidden="true">
                   <path d="M9 2a5.5 5.5 0 0 0-5.5 5.5c0 2.5-.8 3.5-1.5 4.5h14c-.7-1-1.5-2-1.5-4.5A5.5 5.5 0 0 0 9 2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M7 13.5a2 2 0 0 0 4 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
+                お知らせ
                 {unreadNotifCount > 0 && (
-                  <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] text-white">
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] text-white">
                     {unreadNotifCount}
                   </span>
                 )}
@@ -203,7 +217,7 @@ export default function Header({
 
               {/* 通知ドロップダウン */}
               {notifOpen && (
-                <div className="absolute left-0 top-10 z-20 w-72 overflow-hidden rounded-2xl border border-neutral-100 bg-white shadow-lg">
+                <div className="absolute right-0 top-10 z-20 w-72 overflow-hidden rounded-2xl border border-neutral-100 bg-white shadow-lg">
                   <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3">
                     <p className="text-xs font-normal text-neutral-900">お知らせ</p>
                     <button onClick={() => setNotifOpen(false)} className="text-xs text-neutral-400 hover:text-neutral-600">✕</button>
@@ -234,21 +248,10 @@ export default function Header({
             </div>
 
             {/* ログアウトボタン */}
-            <button onClick={handleLogout} className="rounded-full px-3 py-1.5 text-xs text-neutral-500 hover:bg-neutral-100">
+            <button onClick={handleLogout} className="rounded-full px-2.5 py-1.5 text-xs text-neutral-500 hover:bg-neutral-100">
               ログアウト
             </button>
           </div>
-
-          {/* ハンバーガー（右端） */}
-          <button
-            onClick={() => setDrawerOpen(true)}
-            aria-label="メニューを開く"
-            className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-neutral-100"
-          >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-              <path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-          </button>
         </div>
       </div>
 
