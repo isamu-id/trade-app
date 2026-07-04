@@ -108,11 +108,7 @@ export default async function HomePage() {
         {/* ヒーロー + 検索バー */}
         <div className="border-b border-hairline px-5 pb-10 pt-8 sm:px-8">
           <div className="mx-auto max-w-2xl text-center">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-gold-soft px-3.5 py-1.5 text-xs font-medium text-gold">
-              <span className="h-1.5 w-1.5 rounded-full bg-gold" />
-              わらしべ長者を、現代へ。
-            </span>
-            <h1 className="mt-5 text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-ink sm:text-4xl">
+            <h1 className="text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-ink sm:text-4xl">
               いらないモノを、
               <br className="sm:hidden" />
               ほしいモノへ。

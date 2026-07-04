@@ -152,9 +152,9 @@ export default function Header({
       {/* ヘッダー: sticky + すりガラス効果 */}
       <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md">
         {/* 上段: ロゴ中央 */}
-        <div className="flex justify-center px-5 pt-2 pb-1">
+        <div className="flex justify-start px-5 pt-2 pb-1">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/kaecco-logo.svg" alt="kaecco" className="h-20 w-auto" />
+          <img src="/kaecco-logo.svg" alt="kaecco" className="h-14 w-auto" />
         </div>
         {/* 下段: ボタン類（左）・ハンバーガー（右端） */}
         <div className="flex items-center justify-between border-b border-hairline px-5 py-1.5">
