@@ -152,12 +152,94 @@ export default function Header({
       {/* ヘッダー: sticky + すりガラス効果 */}
       <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md">
         {/* 上段: ロゴ中央 */}
-        <div className="flex justify-center px-5 pt-3 pb-1">
+        <div className="flex justify-center px-5 pt-2 pb-1">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/kaecco-logo.svg" alt="kaecco" className="h-40 w-auto" />
+          <img src="/kaecco-logo.svg" alt="kaecco" className="h-20 w-auto" />
         </div>
-        {/* 下段: ハンバーガー・ボタン類 */}
+        {/* 下段: ボタン類（左）・ハンバーガー（右端） */}
         <div className="flex items-center justify-between border-b border-hairline px-5 py-1.5">
+          <div className="flex items-center gap-1">
+            {/* 更新ボタン（アイコンのみ） */}
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              aria-label="更新"
+              className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-neutral-100 disabled:opacity-50"
+            >
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 18 18"
+                fill="none"
+                aria-hidden="true"
+                style={{ animation: refreshing ? "spin 0.7s linear infinite" : "none" }}
+              >
+                <path d="M14.5 9a5.5 5.5 0 1 1-1.1-3.3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                <path d="M14.5 4v2.5H12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+
+            {/* 通知ベルボタン（アイコンのみ） */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setNotifOpen((v) => !v);
+                  setDrawerOpen(false);
+                  if (!notifOpen && unreadNotifCount > 0) markAllRead();
+                }}
+                aria-label="お知らせ"
+                className="relative flex h-8 w-8 items-center justify-center rounded-full hover:bg-neutral-100"
+              >
+                <svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                  <path d="M9 2a5.5 5.5 0 0 0-5.5 5.5c0 2.5-.8 3.5-1.5 4.5h14c-.7-1-1.5-2-1.5-4.5A5.5 5.5 0 0 0 9 2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M7 13.5a2 2 0 0 0 4 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+                {unreadNotifCount > 0 && (
+                  <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] text-white">
+                    {unreadNotifCount}
+                  </span>
+                )}
+              </button>
+
+              {/* 通知ドロップダウン */}
+              {notifOpen && (
+                <div className="absolute left-0 top-10 z-20 w-72 overflow-hidden rounded-2xl border border-neutral-100 bg-white shadow-lg">
+                  <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3">
+                    <p className="text-xs font-normal text-neutral-900">お知らせ</p>
+                    <button onClick={() => setNotifOpen(false)} className="text-xs text-neutral-400 hover:text-neutral-600">✕</button>
+                  </div>
+                  <div className="max-h-72 overflow-y-auto">
+                    {notifications.length === 0 && (
+                      <p className="px-4 py-6 text-center text-xs text-neutral-400">お知らせはありません</p>
+                    )}
+                    {notifications.map((notif) => (
+                      <div
+                        key={notif.id}
+                        onClick={() => handleNotifClick(notif)}
+                        className={`flex cursor-pointer items-start gap-2 border-b border-neutral-50 px-4 py-3 hover:bg-neutral-50 ${!notif.is_read ? "bg-rose-50/50" : ""}`}
+                      >
+                        <div className="flex-1">
+                          <p className="text-xs font-normal text-neutral-900">{notif.title}</p>
+                          <p className="mt-0.5 text-xs text-neutral-400">{notif.body}</p>
+                          <p className="mt-1 text-[10px] text-neutral-300">
+                            {new Date(notif.created_at).toLocaleString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                          </p>
+                        </div>
+                        <button onClick={(e) => deleteNotification(notif.id, e)} aria-label="削除" className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-neutral-300 hover:bg-neutral-100 hover:text-neutral-500">✕</button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* ログアウトボタン */}
+            <button onClick={handleLogout} className="rounded-full px-3 py-1.5 text-xs text-neutral-500 hover:bg-neutral-100">
+              ログアウト
+            </button>
+          </div>
+
+          {/* ハンバーガー（右端） */}
           <button
             onClick={() => setDrawerOpen(true)}
             aria-label="メニューを開く"
@@ -167,89 +249,6 @@ export default function Header({
               <path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
           </button>
-
-        <div className="flex items-center gap-1">
-          {/* 更新ボタン */}
-          <button
-            onClick={handleRefresh}
-            disabled={refreshing}
-            aria-label="更新"
-            className="flex items-center gap-1 rounded-full px-3 py-1.5 text-xs text-neutral-500 hover:bg-neutral-100 disabled:opacity-50"
-          >
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 18 18"
-              fill="none"
-              aria-hidden="true"
-              style={{ animation: refreshing ? "spin 0.7s linear infinite" : "none" }}
-            >
-              <path d="M14.5 9a5.5 5.5 0 1 1-1.1-3.3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              <path d="M14.5 4v2.5H12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            更新
-          </button>
-
-          {/* 通知ベルボタン */}
-          <div className="relative">
-            <button
-              onClick={() => {
-                setNotifOpen((v) => !v);
-                setDrawerOpen(false);
-                if (!notifOpen && unreadNotifCount > 0) markAllRead();
-              }}
-              aria-label="お知らせ"
-              className="relative flex items-center gap-1 rounded-full px-3 py-1.5 text-xs text-neutral-500 hover:bg-neutral-100"
-            >
-              <svg width="14" height="14" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-                <path d="M9 2a5.5 5.5 0 0 0-5.5 5.5c0 2.5-.8 3.5-1.5 4.5h14c-.7-1-1.5-2-1.5-4.5A5.5 5.5 0 0 0 9 2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M7 13.5a2 2 0 0 0 4 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
-              <span>お知らせ</span>
-              {unreadNotifCount > 0 && (
-                <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] text-white">
-                  {unreadNotifCount}
-                </span>
-              )}
-            </button>
-
-            {/* 通知ドロップダウン */}
-            {notifOpen && (
-              <div className="absolute right-0 top-10 z-20 w-72 overflow-hidden rounded-2xl border border-neutral-100 bg-white shadow-lg">
-                <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3">
-                  <p className="text-xs font-normal text-neutral-900">お知らせ</p>
-                  <button onClick={() => setNotifOpen(false)} className="text-xs text-neutral-400 hover:text-neutral-600">✕</button>
-                </div>
-                <div className="max-h-72 overflow-y-auto">
-                  {notifications.length === 0 && (
-                    <p className="px-4 py-6 text-center text-xs text-neutral-400">お知らせはありません</p>
-                  )}
-                  {notifications.map((notif) => (
-                    <div
-                      key={notif.id}
-                      onClick={() => handleNotifClick(notif)}
-                      className={`flex cursor-pointer items-start gap-2 border-b border-neutral-50 px-4 py-3 hover:bg-neutral-50 ${!notif.is_read ? "bg-rose-50/50" : ""}`}
-                    >
-                      <div className="flex-1">
-                        <p className="text-xs font-normal text-neutral-900">{notif.title}</p>
-                        <p className="mt-0.5 text-xs text-neutral-400">{notif.body}</p>
-                        <p className="mt-1 text-[10px] text-neutral-300">
-                          {new Date(notif.created_at).toLocaleString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-                        </p>
-                      </div>
-                      <button onClick={(e) => deleteNotification(notif.id, e)} aria-label="削除" className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-neutral-300 hover:bg-neutral-100 hover:text-neutral-500">✕</button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* ログアウトボタン */}
-          <button onClick={handleLogout} className="rounded-full px-3 py-1.5 text-xs text-neutral-500 hover:bg-neutral-100">
-            ログアウト
-          </button>
-        </div>
         </div>
       </div>
 
