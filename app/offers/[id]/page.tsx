@@ -26,28 +26,27 @@ export default async function OfferDetailPage({ params }: { params: { id: string
   const isRequestedOwner = offer.requesting_item?.owner_id === auth.user.id;
 
   const { data: messages } = await supabase
-    .from("messages")
-    .select("*")
+    .from("messages").select("*")
     .eq("offer_id", params.id)
     .order("created_at", { ascending: true });
 
   return (
-    <main className="min-h-screen bg-white antialiased">
-      <div className="mx-auto max-w-2xl px-5 py-8">
-        <Link href="/offers" className="-ml-1 mb-6 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm text-neutral-500 transition hover:bg-neutral-100">
+    <main className="min-h-screen bg-white text-ink antialiased">
+      <div className="mx-auto max-w-2xl px-5 py-8 sm:px-8">
+        <Link href="/offers" className="-ml-1 mb-6 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm text-subtle transition hover:bg-gold-soft hover:text-gold">
           ← オファー一覧に戻る
         </Link>
 
         <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-lg font-normal tracking-tight text-neutral-900">
+          <h1 className="text-lg font-semibold tracking-tight text-ink">
             {offer.offering_item?.title} ⇄ {offer.requesting_item?.title}
           </h1>
           {isRequestedOwner && offer.status === "pending" && <OfferActions offerId={offer.id} />}
         </div>
 
         {offer.status === "rejected" && (
-          <div className="mb-5 rounded-2xl bg-neutral-50 px-4 py-3">
-            <p className="text-sm text-neutral-500">このオファーは拒否されました</p>
+          <div className="mb-5 rounded-2xl border border-hairline bg-neutral-50 px-4 py-3">
+            <p className="text-sm text-subtle">このオファーは拒否されました</p>
           </div>
         )}
 
@@ -63,9 +62,9 @@ export default async function OfferDetailPage({ params }: { params: { id: string
         )}
 
         {offer.status === "completed" && (
-          <div className="mb-5 rounded-2xl bg-emerald-50 px-4 py-4">
-            <p className="text-sm font-normal text-emerald-700">🎉 取引が完了しました</p>
-            <p className="mt-1 text-xs text-emerald-500">お互いの商品が無事に届きました。ありがとうございました！</p>
+          <div className="mb-5 rounded-2xl bg-gold-soft px-4 py-4">
+            <p className="text-sm font-medium text-gold">🎉 取引が完了しました</p>
+            <p className="mt-1 text-xs text-gold/70">お互いの商品が無事に届きました。ありがとうございました！</p>
           </div>
         )}
 

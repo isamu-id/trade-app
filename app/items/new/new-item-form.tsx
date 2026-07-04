@@ -53,45 +53,45 @@ export default function NewItemForm() {
   }
 
   return (
-    <main className="min-h-screen bg-white antialiased">
-      <div className="mx-auto max-w-lg px-5 py-8">
-        <Link href="/" className="-ml-1 mb-6 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm text-neutral-500 transition hover:bg-neutral-100">
+    <main className="min-h-screen bg-white text-ink antialiased">
+      <div className="mx-auto max-w-lg px-5 py-8 sm:px-8">
+        <Link href="/" className="-ml-1 mb-6 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm text-subtle transition hover:bg-gold-soft hover:text-gold">
           ← トップに戻る
         </Link>
-        <h1 className="mb-8 text-2xl font-normal tracking-tight text-neutral-900">出品する</h1>
+        <h1 className="mb-8 text-2xl font-semibold tracking-tight text-ink">出品する</h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div>
-            <label className="mb-1.5 block text-sm text-neutral-500">写真</label>
-            <input type="file" accept="image/*" multiple onChange={(e) => setFiles(Array.from(e.target.files ?? []))} className="text-sm text-neutral-600" />
+            <label className="mb-1.5 block text-sm text-subtle">写真</label>
+            <input type="file" accept="image/*" multiple onChange={(e) => setFiles(Array.from(e.target.files ?? []))} className="text-sm text-subtle" />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm text-neutral-500">商品名</label>
-            <input type="text" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="例: コンパクトカメラ" className="w-full rounded-xl border border-neutral-200 px-4 py-3 text-sm outline-none transition focus:border-rose-300 focus:ring-2 focus:ring-rose-50" />
+            <label className="mb-1.5 block text-sm text-subtle">商品名</label>
+            <input type="text" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="例: コンパクトカメラ" className="w-full rounded-2xl border border-hairline px-4 py-3 text-sm text-ink outline-none transition focus:border-gold focus:ring-4 focus:ring-gold-soft" />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm text-neutral-500">説明</label>
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="状態や使用感を書いてください" className="h-24 w-full rounded-xl border border-neutral-200 px-4 py-3 text-sm outline-none transition focus:border-rose-300 focus:ring-2 focus:ring-rose-50" />
+            <label className="mb-1.5 block text-sm text-subtle">説明</label>
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="状態や使用感を書いてください" className="h-24 w-full rounded-2xl border border-hairline px-4 py-3 text-sm text-ink outline-none transition focus:border-gold focus:ring-4 focus:ring-gold-soft" />
           </div>
           <div className="flex gap-3">
             <div className="flex-1">
-              <label className="mb-1.5 block text-sm text-neutral-500">カテゴリ</label>
-              <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full rounded-xl border border-neutral-200 px-4 py-3 text-sm outline-none focus:border-rose-300 focus:ring-2 focus:ring-rose-50">
+              <label className="mb-1.5 block text-sm text-subtle">カテゴリ</label>
+              <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full rounded-2xl border border-hairline px-4 py-3 text-sm text-ink outline-none focus:border-gold focus:ring-4 focus:ring-gold-soft">
                 {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div className="flex-1">
-              <label className="mb-1.5 block text-sm text-neutral-500">状態</label>
-              <select value={condition} onChange={(e) => setCondition(e.target.value)} className="w-full rounded-xl border border-neutral-200 px-4 py-3 text-sm outline-none focus:border-rose-300 focus:ring-2 focus:ring-rose-50">
+              <label className="mb-1.5 block text-sm text-subtle">状態</label>
+              <select value={condition} onChange={(e) => setCondition(e.target.value)} className="w-full rounded-2xl border border-hairline px-4 py-3 text-sm text-ink outline-none focus:border-gold focus:ring-4 focus:ring-gold-soft">
                 <option>新品</option><option>良好</option><option>使用感あり</option>
               </select>
             </div>
           </div>
           <div>
-            <label className="mb-1.5 block text-sm text-neutral-500">欲しいもの（任意）</label>
-            <input type="text" value={desiredItemsText} onChange={(e) => setDesiredItemsText(e.target.value)} placeholder="例: イヤホン、ゲームソフトなど" className="w-full rounded-xl border border-neutral-200 px-4 py-3 text-sm outline-none transition focus:border-rose-300 focus:ring-2 focus:ring-rose-50" />
+            <label className="mb-1.5 block text-sm text-subtle">欲しいもの（任意）</label>
+            <input type="text" value={desiredItemsText} onChange={(e) => setDesiredItemsText(e.target.value)} placeholder="例: イヤホン、ゲームソフトなど" className="w-full rounded-2xl border border-hairline px-4 py-3 text-sm text-ink outline-none transition focus:border-gold focus:ring-4 focus:ring-gold-soft" />
           </div>
-          {error && <p className="rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-500">{error}</p>}
-          <button type="submit" disabled={loading || submitted} className="flex items-center justify-center gap-2 rounded-full bg-rose-500 py-3.5 text-sm font-normal text-white transition hover:bg-rose-600 disabled:opacity-50">
+          {error && <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>}
+          <button type="submit" disabled={loading || submitted} className="flex items-center justify-center gap-2 rounded-full bg-gold py-3.5 text-sm font-medium text-white transition hover:bg-gold/90 disabled:opacity-50">
             {loading && <Spinner />}
             {loading ? "出品中..." : submitted ? "出品完了" : "出品する"}
           </button>

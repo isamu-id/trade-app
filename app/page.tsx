@@ -96,18 +96,8 @@ export default async function HomePage() {
     pendingOfferCount = count ?? 0;
   }
 
-  const dotColors = [
-    "bg-red-400",
-    "bg-sky-400",
-    "bg-emerald-400",
-    "bg-orange-400",
-    "bg-pink-400",
-    "bg-violet-400",
-    "bg-amber-400",
-  ];
-
   return (
-    <main className="min-h-screen bg-white font-sans text-neutral-800 antialiased">
+    <main className="min-h-screen bg-white font-sans text-ink antialiased">
       <div className="mx-auto max-w-3xl">
         <Header
           unreadCount={unreadCount}
@@ -115,44 +105,55 @@ export default async function HomePage() {
           pendingOfferCount={pendingOfferCount}
         />
 
-        {/* 検索バー */}
-        <div className="sticky top-0 z-10 border-b border-neutral-100 bg-white/85 px-5 py-4 backdrop-blur-md sm:px-8">
-          <div className="relative">
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.3-4.3" />
-            </svg>
-            <input
-              type="text"
-              placeholder="何を探していますか?"
-              className="w-full rounded-full border border-neutral-200 bg-white py-3 pl-11 pr-5 text-sm text-neutral-800 shadow-sm outline-none transition placeholder:text-neutral-400 hover:border-neutral-300 hover:shadow focus:border-neutral-400 focus:ring-2 focus:ring-neutral-100"
-            />
+        {/* ヒーロー + 検索バー */}
+        <div className="border-b border-hairline px-5 pb-10 pt-8 sm:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-gold-soft px-3.5 py-1.5 text-xs font-medium text-gold">
+              <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+              わらしべ長者を、現代へ。
+            </span>
+            <h1 className="mt-5 text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-ink sm:text-4xl">
+              いらないモノを、
+              <br className="sm:hidden" />
+              ほしいモノへ。
+            </h1>
+            <p className="mx-auto mt-4 max-w-md text-pretty text-sm leading-relaxed text-subtle">
+              使わなくなった持ち物を、あなたにとって価値あるモノと交換しよう。
+            </p>
+            <div className="relative mx-auto mt-8">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-subtle"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+              <input
+                type="text"
+                placeholder="何を探していますか?"
+                className="w-full rounded-2xl border border-hairline bg-white py-4 pl-14 pr-5 text-sm text-ink shadow-sm outline-none transition placeholder:text-subtle hover:shadow-md focus:border-gold focus:ring-4 focus:ring-gold-soft"
+              />
+            </div>
           </div>
         </div>
 
-        <div className="px-5 py-6 sm:px-8">
+        <div className="px-5 py-8 sm:px-8">
           {/* カテゴリチップ */}
-          <div className="mb-8">
-            <h2 className="mb-4 text-base font-medium text-neutral-900">
-              カテゴリから探す
-            </h2>
+          <div className="mb-10">
+            <h2 className="mb-4 text-base font-medium text-ink">カテゴリから探す</h2>
             <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {CATEGORIES.map((category, i) => (
+              {CATEGORIES.map((category) => (
                 <button
                   key={category}
                   type="button"
-                  className="flex flex-shrink-0 items-center gap-2 rounded-full border border-neutral-200 bg-white px-4 py-2 text-sm font-normal text-neutral-600 transition hover:border-neutral-900 hover:text-neutral-900"
+                  className="flex flex-shrink-0 items-center rounded-full border border-hairline bg-white px-4 py-2 text-sm text-subtle transition hover:border-gold hover:bg-gold-soft hover:text-gold"
                 >
-                  <span className={`h-1.5 w-1.5 rounded-full ${dotColors[i % dotColors.length]}`} />
                   {category}
                 </button>
               ))}
@@ -160,21 +161,16 @@ export default async function HomePage() {
           </div>
 
           {itemsByCategory.length === 0 && (
-            <div className="rounded-2xl border border-dashed border-neutral-200 py-16 text-center">
-              <p className="text-sm text-neutral-500">まだ出品がありません。</p>
+            <div className="rounded-2xl border border-dashed border-hairline py-16 text-center">
+              <p className="text-sm text-subtle">まだ出品がありません。</p>
             </div>
           )}
 
-          {itemsByCategory.map((group, gi) => (
-            <section key={group.category} className="mb-8">
+          {itemsByCategory.map((group) => (
+            <section key={group.category} className="mb-10">
               <div className="mb-4 flex items-baseline justify-between">
-                <h2 className="flex items-center gap-2 text-lg font-medium text-neutral-900">
-                  <span className={`h-2 w-2 rounded-full ${dotColors[gi % dotColors.length]}`} />
-                  {group.category}
-                </h2>
-                <span className="text-sm font-normal text-neutral-400">
-                  {group.items.length}件
-                </span>
+                <h2 className="text-lg font-medium text-ink">{group.category}</h2>
+                <span className="text-sm text-subtle">{group.items.length}件</span>
               </div>
               <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {group.items.map((item) => {
@@ -189,56 +185,36 @@ export default async function HomePage() {
                           <img
                             src={item.images[0]}
                             alt={item.title}
-                            className="h-full w-full object-cover transition duration-500 ease-out group-hover:scale-105"
+                            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                           />
                         ) : (
-                          <span className="flex h-full w-full items-center justify-center text-xs text-neutral-400">
-                            画像なし
-                          </span>
+                          <span className="flex h-full w-full items-center justify-center text-xs text-subtle">画像なし</span>
                         )}
                       </div>
-                      <p className="truncate px-0.5 pt-3 text-sm font-normal text-neutral-800">
-                        {item.title}
-                      </p>
+                      <p className="truncate px-0.5 pt-3 text-sm text-ink">{item.title}</p>
                     </>
                   );
 
                   if (isOwner) {
                     return (
-                      <div
-                        key={item.id}
-                        title="自分の出品物のため選択できません"
-                        className="group relative w-40 flex-shrink-0 cursor-not-allowed opacity-50"
-                      >
+                      <div key={item.id} className="group relative w-40 flex-shrink-0 cursor-not-allowed opacity-50">
                         {cardContent}
-                        <span className="absolute left-2 top-2 rounded-full bg-neutral-900/80 px-2.5 py-0.5 text-[10px] font-normal text-white backdrop-blur-sm">
-                          自分の出品
-                        </span>
+                        <span className="absolute left-2 top-2 rounded-full bg-ink/80 px-2.5 py-0.5 text-[10px] text-white">自分の出品</span>
                       </div>
                     );
                   }
 
                   if (isNegotiating) {
                     return (
-                      <div
-                        key={item.id}
-                        title="すでにオファーを送っているため選択できません"
-                        className="group relative w-40 flex-shrink-0 cursor-not-allowed opacity-50"
-                      >
+                      <div key={item.id} className="group relative w-40 flex-shrink-0 cursor-not-allowed opacity-50">
                         {cardContent}
-                        <span className="absolute left-2 top-2 rounded-full bg-white/90 px-2.5 py-0.5 text-[10px] font-medium text-neutral-800 shadow-sm backdrop-blur-sm">
-                          交渉中
-                        </span>
+                        <span className="absolute left-2 top-2 rounded-full bg-gold px-2.5 py-0.5 text-[10px] text-white">交渉中</span>
                       </div>
                     );
                   }
 
                   return (
-                    <Link
-                      key={item.id}
-                      href={`/items/${item.id}`}
-                      className="group w-40 flex-shrink-0 transition duration-200 hover:-translate-y-0.5"
-                    >
+                    <Link key={item.id} href={`/items/${item.id}`} className="group w-40 flex-shrink-0 transition hover:-translate-y-0.5">
                       {cardContent}
                     </Link>
                   );

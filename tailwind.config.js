@@ -4,7 +4,17 @@ module.exports = {
   theme: {
     extend: {
       height: {
-        104: "26rem", // h-52(13rem)の2倍
+        104: "26rem",
+      },
+      colors: {
+        ink: "#1a1a1a",
+        subtle: "#6b7280",
+        hairline: "#e5e7eb",
+        gold: "#b8860b",
+        "gold-soft": "#fdf8ec",
+      },
+      fontFamily: {
+        display: ["system-ui", "sans-serif"],
       },
     },
   },

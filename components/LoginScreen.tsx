@@ -21,12 +21,12 @@ export default function LoginScreen() {
       <div className="w-full max-w-sm">
         <div className="mb-10 text-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/kaecco-logo.png" alt="kaecco" className="mx-auto mb-4 h-12 w-auto" />
-          <p className="text-sm text-neutral-400">いらないモノが、誰かの宝物に。</p>
+          <img src="/kaecco-logo.png" alt="kaecco" className="mx-auto mb-6 h-16 w-auto" />
+          <p className="text-sm text-subtle">いらないモノが、誰かの宝物に。</p>
         </div>
         <button
           onClick={handleGoogleLogin}
-          className="flex w-full items-center justify-center gap-3 rounded-full border border-neutral-200 bg-white py-3.5 text-sm text-neutral-700 shadow-sm transition hover:border-neutral-300 hover:shadow-md"
+          className="flex w-full items-center justify-center gap-3 rounded-full border border-hairline bg-white py-3.5 text-sm text-ink shadow-sm transition hover:border-gold hover:bg-gold-soft hover:shadow-md"
         >
           <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
             <path fill="#FFC107" d="M43.6 20.5h-1.9V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.7 6 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/>
@@ -36,7 +36,7 @@ export default function LoginScreen() {
           </svg>
           Googleでログイン
         </button>
-        {error && <p className="mt-4 text-center text-sm text-rose-500">{error}</p>}
+        {error && <p className="mt-4 text-center text-sm text-red-500">{error}</p>}
       </div>
     </main>
   );
