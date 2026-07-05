@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import OfferActions from "./offer-actions";
@@ -65,6 +66,12 @@ export default async function OfferDetailPage({ params }: { params: { id: string
           <div className="mb-5 rounded-2xl bg-gold-soft px-4 py-4">
             <p className="text-sm font-medium text-gold">🎉 取引が完了しました</p>
             <p className="mt-1 text-xs text-gold/70">お互いの商品が無事に届きました。ありがとうございました！</p>
+            <Link
+              href={`/offers/${offer.id}/review`}
+              className="mt-3 inline-block rounded-full bg-gold px-4 py-2 text-xs font-medium text-white hover:bg-gold/90 transition"
+            >
+              相手を評価する →
+            </Link>
           </div>
         )}
 

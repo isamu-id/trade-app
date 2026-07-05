@@ -37,6 +37,18 @@ export default async function ItemDetailPage({ params }: { params: { id: string 
     .eq("item_id", params.id)
     .order("created_at", { ascending: true });
 
+  // 出品者の評価データを取得
+  const { data: ownerReviews } = await supabase
+    .from("reviews")
+    .select("rating, has_trouble")
+    .eq("reviewee_id", item.owner_id);
+
+  const ownerReviewCount = ownerReviews?.length ?? 0;
+  const ownerAvgRating = ownerReviewCount > 0
+    ? (ownerReviews!.reduce((s, r) => s + r.rating, 0) / ownerReviewCount).toFixed(1)
+    : null;
+  const ownerTroubleCount = ownerReviews?.filter((r) => r.has_trouble).length ?? 0;
+
   return (
     <main className="min-h-screen bg-white text-ink antialiased">
       <div className="mx-auto max-w-2xl px-5 py-8 sm:px-8">
@@ -58,7 +70,7 @@ export default async function ItemDetailPage({ params }: { params: { id: string 
           </div>
           <div className="flex-1">
             <h1 className="mb-1.5 text-xl font-semibold tracking-tight text-ink">{item.title}</h1>
-            <p className="mb-3 text-sm text-subtle">{item.category} ・ {item.condition} ・ {item.profiles?.username ?? "不明"}</p>
+            <p className="mb-3 text-sm text-subtle">{item.category} ・ {item.condition}</p>
             <p className="mb-4 text-sm leading-relaxed text-subtle">{item.description}</p>
             {isOwner && (
               <span className="inline-block rounded-full bg-gold-soft px-3 py-1 text-xs text-gold">自分が出品した商品です</span>
@@ -66,7 +78,34 @@ export default async function ItemDetailPage({ params }: { params: { id: string 
             {!isOwner && hasPendingOffer && (
               <span className="inline-block rounded-full bg-gold-soft px-3 py-1 text-xs text-gold">交渉中です</span>
             )}
-            {!isOwner && !hasPendingOffer && <OfferButton requestingItemId={item.id} />}
+            {!isOwner && !hasPendingOffer && <OfferButton requestingItemId={item.id} revieweeId={item.owner_id} />}
+          </div>
+        </div>
+
+        {/* 出品者情報 */}
+        <div className="mt-5 rounded-2xl border border-hairline p-4">
+          <p className="mb-3 text-xs text-subtle">出品者</p>
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gold-soft flex items-center justify-center text-sm font-medium text-gold">
+              {item.profiles?.username?.[0]?.toUpperCase() ?? "?"}
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="text-sm font-medium text-ink">{item.profiles?.username ?? "不明"}</p>
+                {ownerAvgRating && (
+                  <>
+                    <span className="text-amber-400 text-xs">★ {ownerAvgRating}</span>
+                    <span className="text-xs text-subtle">（{ownerReviewCount}件）</span>
+                  </>
+                )}
+              </div>
+              {ownerTroubleCount > 0 && (
+                <p className="text-xs text-red-400 mt-0.5">トラブル報告 {ownerTroubleCount}件</p>
+              )}
+            </div>
+            <Link href={`/profile/${item.owner_id}`} className="rounded-full border border-hairline px-3 py-1 text-xs text-subtle hover:bg-gold-soft hover:text-gold hover:border-gold transition flex-shrink-0">
+              プロフィール
+            </Link>
           </div>
         </div>
 
