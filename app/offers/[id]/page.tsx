@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import OfferActions from "./offer-actions";
