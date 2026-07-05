@@ -137,7 +137,7 @@ export default async function ProfilePage({ params }: { params: { userId: string
             {reviews?.map((review) => (
               <div key={review.id} className="py-4 first:pt-0 last:pb-0">
                 <div className="flex justify-between items-start mb-2">
-                  <span className="text-xs text-subtle">@{review.reviewer?.username}</span>
+                  <span className="text-xs text-subtle">@{Array.isArray(review.reviewer) ? review.reviewer[0]?.username : (review.reviewer as any)?.username}</span>
                   <span className="text-amber-400 text-sm">
                     {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
                   </span>
