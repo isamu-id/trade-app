@@ -60,8 +60,16 @@ export default function TroubleManager({
       reporter_id: currentUserId,
       reason: reason.trim(),
     });
+    if (err) { setError("報告に失敗しました"); setLoading(false); return; }
+
+    // チャットにシステムメッセージを送信
+    await supabase.from("messages").insert({
+      offer_id: offerId,
+      sender_id: null,
+      content: "🚨 トラブルが報告されました。チャットでトラブルの解決をしてください。",
+    });
+
     setLoading(false);
-    if (err) { setError("報告に失敗しました"); return; }
     setOpen(false);
     setReason("");
   }
