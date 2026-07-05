@@ -78,7 +78,7 @@ export default async function ItemDetailPage({ params }: { params: { id: string 
             {!isOwner && hasPendingOffer && (
               <span className="inline-block rounded-full bg-gold-soft px-3 py-1 text-xs text-gold">交渉中です</span>
             )}
-            {!isOwner && !hasPendingOffer && <OfferButton requestingItemId={item.id} revieweeId={item.owner_id} />}
+            {!isOwner && !hasPendingOffer && <OfferButton requestingItemId={item.id} revieweeId={item.owner_id} revieweeTroubleCount={ownerTroubleCount} />}
           </div>
         </div>
 
