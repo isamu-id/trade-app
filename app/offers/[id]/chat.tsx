@@ -147,18 +147,19 @@ export default function Chat({
       {/* チャットエリア（h-52の2倍 = h-104） */}
       <div className="flex h-104 flex-col gap-2 overflow-y-auto rounded-lg bg-gray-50 p-3">
         {messages.map((m) => {
-          const isSystem = m.content.startsWith("🤝") || m.content.startsWith("🎉");
+          const isSystem = !m.sender_id || m.content.startsWith("🤝") || m.content.startsWith("🎉") || m.content.startsWith("🎁");
           const isImage = m.content.startsWith("img:");
 
           if (isSystem) {
+            const emoji = m.content.startsWith("🤝") ? "🤝"
+              : m.content.startsWith("🎉") ? "🎉"
+              : m.content.startsWith("🎁") ? "🎁"
+              : "📢";
+            const text = m.content.replace(/^(🤝|🎉|🎁) /, "");
             return (
               <div key={m.id} className="flex flex-col items-center gap-1 py-2">
-                <span className="text-2xl">
-                  {m.content.startsWith("🤝") ? "🤝" : "🎉"}
-                </span>
-                <p className="text-center text-xs font-medium text-gray-600">
-                  {m.content.replace("🤝 ", "").replace("🎉 ", "")}
-                </p>
+                <span className="text-2xl">{emoji}</span>
+                <p className="text-center text-xs font-medium text-gray-600">{text}</p>
               </div>
             );
           }

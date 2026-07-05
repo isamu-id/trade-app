@@ -272,7 +272,7 @@ export default function Header({
             </Link>
             <Link href="/offers" onClick={() => setDrawerOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-neutral-600 hover:bg-neutral-50">
               <span className="text-rose-400">⇄</span>
-              <span className="flex-1">オファー</span>
+              <span className="flex-1">オファーを見る</span>
               {pendingOfferCount > 0 && (
                 <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] text-white">{pendingOfferCount}</span>
               )}
