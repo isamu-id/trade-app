@@ -109,7 +109,10 @@ export default function TroubleManager({
           </button>
         )}
         {!isReporter && !trouble.resolved && (
-          <p className="text-xs text-red-300 text-center">相手が解決済みにすると表示が変わります</p>
+          <div className="mt-3 rounded-xl bg-red-100 border border-red-200 px-3 py-2.5">
+            <p className="text-xs font-medium text-red-600">⚠️ トラブルが報告されました。トラブルを解決してください。</p>
+            <p className="text-xs text-red-400 mt-1">相手が解決済みにすると、このメッセージは消えます。</p>
+          </div>
         )}
         {error && <p className="mt-2 text-xs text-red-500">{error}</p>}
       </div>
