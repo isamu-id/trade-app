@@ -6,6 +6,7 @@ import Chat from "./chat";
 import MarkAsRead from "./mark-as-read";
 import TradeFlow from "./trade-flow";
 import OfferStatusWatcher from "./offer-status-watcher";
+import TroubleManager from "./trouble-manager";
 
 export const dynamic = "force-dynamic";
 
@@ -76,6 +77,9 @@ export default async function OfferDetailPage({ params }: { params: { id: string
 
         <OfferStatusWatcher offerId={offer.id} />
         <MarkAsRead offerId={offer.id} userId={auth.user.id} />
+        {offer.status === "accepted" && (
+          <TroubleManager offerId={offer.id} currentUserId={auth.user.id} />
+        )}
         <Chat offerId={offer.id} currentUserId={auth.user.id} initialMessages={messages ?? []} />
       </div>
     </main>

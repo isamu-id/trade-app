@@ -19,16 +19,12 @@ export default function ReviewForm({ offerId, reviewerId, revieweeId, revieweeUs
   const [rating, setRating] = useState(0);
   const [hovered, setHovered] = useState(0);
   const [comment, setComment] = useState("");
-  const [hasTrouble, setHasTrouble] = useState<boolean | null>(null);
-  const [troubleReason, setTroubleReason] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (rating === 0) { setError("評価を選択してください"); return; }
-    if (hasTrouble === null) { setError("トラブルの有無を選択してください"); return; }
-    if (hasTrouble && !troubleReason.trim()) { setError("トラブルの理由を入力してください"); return; }
     setLoading(true);
     setError(null);
 
@@ -38,8 +34,6 @@ export default function ReviewForm({ offerId, reviewerId, revieweeId, revieweeUs
       reviewee_id: revieweeId,
       rating,
       comment: comment.trim() || null,
-      has_trouble: hasTrouble,
-      trouble_reason: hasTrouble ? troubleReason.trim() : null,
     });
 
     setLoading(false);
@@ -90,39 +84,6 @@ export default function ReviewForm({ offerId, reviewerId, revieweeId, revieweeUs
             className="h-20 w-full rounded-2xl border border-hairline px-4 py-3 text-sm text-ink outline-none transition focus:border-gold focus:ring-4 focus:ring-gold-soft resize-none"
           />
           <p className="text-right text-xs text-subtle mt-1">{comment.length} / 300</p>
-        </div>
-
-        {/* トラブル報告 */}
-        <div className="rounded-2xl bg-red-50 border border-red-100 p-4">
-          <p className="text-sm font-medium text-red-600 mb-3">トラブルはありましたか？</p>
-          <div className="flex gap-3 mb-0">
-            <button
-              type="button"
-              onClick={() => setHasTrouble(false)}
-              className={`flex-1 py-2 rounded-xl text-sm border transition ${hasTrouble === false ? "bg-red-100 border-red-300 text-red-700 font-medium" : "bg-white border-red-200 text-red-500"}`}
-            >
-              なかった
-            </button>
-            <button
-              type="button"
-              onClick={() => setHasTrouble(true)}
-              className={`flex-1 py-2 rounded-xl text-sm border transition ${hasTrouble === true ? "bg-red-100 border-red-300 text-red-700 font-medium" : "bg-white border-red-200 text-red-500"}`}
-            >
-              あった
-            </button>
-          </div>
-          {hasTrouble && (
-            <div className="mt-3">
-              <label className="mb-1.5 block text-xs text-red-500">どのようなトラブルでしたか？</label>
-              <textarea
-                value={troubleReason}
-                onChange={(e) => setTroubleReason(e.target.value)}
-                placeholder="例：荷物が届かなかった、商品が説明と異なっていた"
-                maxLength={300}
-                className="h-16 w-full rounded-xl border border-red-200 bg-white px-3 py-2 text-sm text-ink outline-none resize-none focus:border-red-400 focus:ring-2 focus:ring-red-100"
-              />
-            </div>
-          )}
         </div>
 
         {error && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-500">{error}</p>}

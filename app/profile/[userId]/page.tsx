@@ -46,11 +46,29 @@ export default async function ProfilePage({ params }: { params: { userId: string
   const avgRating = totalReviews > 0
     ? (reviews!.reduce((sum, r) => sum + r.rating, 0) / totalReviews).toFixed(1)
     : null;
-  const troubleCount = reviews?.filter((r) => r.has_trouble).length ?? 0;
   const starCounts = [5, 4, 3, 2, 1].map((s) => ({
     star: s,
     count: reviews?.filter((r) => r.rating === s).length ?? 0,
   }));
+
+  // chat_troublesからトラブルデータを取得
+  const { data: troubles } = await supabase
+    .from("chat_troubles")
+    .select("id, reason, resolved, created_at, reporter:reporter_id(username)")
+    .in(
+      "offer_id",
+      // このユーザーが関わる取引のoffer_idを取得
+      (await supabase
+        .from("trade_offers")
+        .select("id")
+        .or(`offerer_id.eq.${params.userId},requesting_item_id.in.(${
+          (await supabase.from("items").select("id").eq("owner_id", params.userId)).data?.map((i) => i.id).join(",") || "00000000-0000-0000-0000-000000000000"
+        })`)
+      ).data?.map((o) => o.id) ?? []
+    )
+    .order("created_at", { ascending: false });
+
+  const troubleCount = troubles?.length ?? 0;
 
   const joinYear = new Date(profile.created_at).getFullYear();
   const joinMonth = new Date(profile.created_at).getMonth() + 1;
@@ -89,7 +107,7 @@ export default async function ProfilePage({ params }: { params: { userId: string
               <div className="border-t border-hairline pt-2">
                 <TroubleToggle
                   count={troubleCount}
-                  troubles={reviews?.filter((r) => r.has_trouble) ?? []}
+                  troubles={troubles ?? []}
                 />
               </div>
             </div>

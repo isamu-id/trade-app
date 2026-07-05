@@ -37,17 +37,40 @@ export default async function ItemDetailPage({ params }: { params: { id: string 
     .eq("item_id", params.id)
     .order("created_at", { ascending: true });
 
-  // 出品者の評価データを取得
+  // 出品者のレビューデータを取得
   const { data: ownerReviews } = await supabase
     .from("reviews")
-    .select("rating, has_trouble")
+    .select("rating")
     .eq("reviewee_id", item.owner_id);
 
   const ownerReviewCount = ownerReviews?.length ?? 0;
   const ownerAvgRating = ownerReviewCount > 0
     ? (ownerReviews!.reduce((s, r) => s + r.rating, 0) / ownerReviewCount).toFixed(1)
     : null;
-  const ownerTroubleCount = ownerReviews?.filter((r) => r.has_trouble).length ?? 0;
+
+  // 出品者のトラブル件数をchat_troublesから取得
+  const { data: ownerItems } = await supabase
+    .from("items")
+    .select("id")
+    .eq("owner_id", item.owner_id);
+
+  const ownerItemIds = ownerItems?.map((i) => i.id) ?? [];
+
+  const { data: ownerOffers } = await supabase
+    .from("trade_offers")
+    .select("id")
+    .or(`offerer_id.eq.${item.owner_id}${ownerItemIds.length > 0 ? `,requesting_item_id.in.(${ownerItemIds.join(",")})` : ""}`);
+
+  const ownerOfferIds = ownerOffers?.map((o) => o.id) ?? [];
+
+  let ownerTroubleCount = 0;
+  if (ownerOfferIds.length > 0) {
+    const { count } = await supabase
+      .from("chat_troubles")
+      .select("*", { count: "exact", head: true })
+      .in("offer_id", ownerOfferIds);
+    ownerTroubleCount = count ?? 0;
+  }
 
   return (
     <main className="min-h-screen bg-white text-ink antialiased">
