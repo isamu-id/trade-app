@@ -2,13 +2,19 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import LoginScreen from "@/components/LoginScreen";
 import Header from "@/components/Header";
+import SearchBar from "@/components/SearchBar";
 import { CATEGORIES, type Item } from "@/types/database";
 
 export const dynamic = "force-dynamic";
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: { q?: string };
+}) {
   const supabase = createClient();
   const { data: auth } = await supabase.auth.getUser();
+  const q = searchParams.q?.trim() ?? "";
 
   if (!auth.user) {
     return <LoginScreen />;
@@ -50,11 +56,18 @@ export default async function HomePage() {
     }
   }
 
-  const { data: items } = await supabase
+  // 商品一覧を取得（検索ワードがあれば絞り込み）
+  let itemsQuery = supabase
     .from("items")
     .select("*")
     .eq("status", "available")
     .order("created_at", { ascending: false });
+
+  if (q) {
+    itemsQuery = itemsQuery.or(`title.ilike.%${q}%,description.ilike.%${q}%`);
+  }
+
+  const { data: items } = await itemsQuery;
 
   let pendingItemIds: string[] = [];
   const { data: myPendingOffers } = await supabase
@@ -105,7 +118,7 @@ export default async function HomePage() {
           pendingOfferCount={pendingOfferCount}
         />
 
-        {/* ヒーロー + 検索バー */}
+        {/* 検索バー */}
         <div className="border-b border-hairline px-5 pb-10 pt-8 sm:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <h1 className="text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-ink sm:text-4xl">
@@ -116,30 +129,24 @@ export default async function HomePage() {
             <p className="mx-auto mt-4 max-w-md text-pretty text-sm leading-relaxed text-subtle">
               使わなくなった持ち物を、あなたにとって価値あるモノと交換しよう。
             </p>
-            <div className="relative mx-auto mt-8">
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-subtle"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.3-4.3" />
-              </svg>
-              <input
-                type="text"
-                placeholder="何を探していますか?"
-                className="w-full rounded-2xl border border-hairline bg-white py-4 pl-14 pr-5 text-sm text-ink shadow-sm outline-none transition placeholder:text-subtle hover:shadow-md focus:border-gold focus:ring-4 focus:ring-gold-soft"
-              />
+            <div className="mt-8">
+              <SearchBar />
             </div>
           </div>
         </div>
 
         <div className="px-5 py-8 sm:px-8">
+          {/* 検索中の表示 */}
+          {q && (
+            <div className="mb-6 flex items-center gap-2">
+              <p className="text-sm text-subtle">
+                「<span className="font-medium text-ink">{q}</span>」の検索結果
+                <span className="ml-1 text-subtle">
+                  （{(items as Item[] | null)?.length ?? 0}件）
+                </span>
+              </p>
+            </div>
+          )}
           {/* カテゴリチップ */}
           <div className="mb-10">
             <h2 className="mb-4 text-base font-medium text-ink">カテゴリから探す</h2>
@@ -158,7 +165,9 @@ export default async function HomePage() {
 
           {itemsByCategory.length === 0 && (
             <div className="rounded-2xl border border-dashed border-hairline py-16 text-center">
-              <p className="text-sm text-subtle">まだ出品がありません。</p>
+              <p className="text-sm text-subtle">
+                {q ? `「${q}」に一致する商品はありません。` : "まだ出品がありません。"}
+              </p>
             </div>
           )}
 
