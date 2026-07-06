@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import TroubleToggle from "./trouble-toggle";
+import TroubleReportedToggle from "./trouble-reported-toggle";
 import ProfileEditForm from "./profile-edit-form";
 
 export const dynamic = "force-dynamic";
@@ -56,24 +57,32 @@ export default async function ProfilePage({ params }: { params: { userId: string
     count: reviews?.filter((r) => r.rating === s).length ?? 0,
   }));
 
-  // chat_troublesからトラブルデータを取得
-  const { data: troubles } = await supabase
+  // このユーザーが関わる取引のoffer_idを取得
+  const userItemIds = (await supabase.from("items").select("id").eq("owner_id", params.userId)).data?.map((i) => i.id) ?? [];
+  const userOfferIds = (await supabase
+    .from("trade_offers")
+    .select("id")
+    .or(`offerer_id.eq.${params.userId},requesting_item_id.in.(${userItemIds.length > 0 ? userItemIds.join(",") : "00000000-0000-0000-0000-000000000000"})`)
+  ).data?.map((o) => o.id) ?? [];
+
+  // 自分が報告されたトラブル（赤）
+  const { data: troublesAgainst } = await supabase
     .from("chat_troubles")
     .select("id, reason, resolved, created_at, reporter:reporter_id(username)")
-    .in(
-      "offer_id",
-      // このユーザーが関わる取引のoffer_idを取得
-      (await supabase
-        .from("trade_offers")
-        .select("id")
-        .or(`offerer_id.eq.${params.userId},requesting_item_id.in.(${
-          (await supabase.from("items").select("id").eq("owner_id", params.userId)).data?.map((i) => i.id).join(",") || "00000000-0000-0000-0000-000000000000"
-        })`)
-      ).data?.map((o) => o.id) ?? []
-    )
+    .in("offer_id", userOfferIds.length > 0 ? userOfferIds : ["00000000-0000-0000-0000-000000000000"])
+    .neq("reporter_id", params.userId)
     .order("created_at", { ascending: false });
 
-  const troubleCount = troubles?.length ?? 0;
+  // 自分が報告したトラブル（緑）- 全員に表示
+  const { data: troublesReported } = await supabase
+    .from("chat_troubles")
+    .select("id, reason, resolved, created_at")
+    .in("offer_id", userOfferIds.length > 0 ? userOfferIds : ["00000000-0000-0000-0000-000000000000"])
+    .eq("reporter_id", params.userId)
+    .order("created_at", { ascending: false });
+
+  const troubleCount = troublesAgainst?.length ?? 0;
+  const reportedCount = troublesReported?.length ?? 0;
 
   const joinYear = new Date(profile.created_at).getFullYear();
   const joinMonth = new Date(profile.created_at).getMonth() + 1;
@@ -153,10 +162,14 @@ export default async function ProfilePage({ params }: { params: { userId: string
             <div className="rounded-xl bg-neutral-50 p-3 text-center">
               <p className="text-2xl font-medium text-ink leading-none">{totalReviews}</p>
               <p className="text-xs text-subtle mt-1 mb-2">取引回数</p>
-              <div className="border-t border-hairline pt-2">
+              <div className="border-t border-hairline pt-2 flex flex-col gap-1.5">
                 <TroubleToggle
                   count={troubleCount}
-                  troubles={troubles ?? []}
+                  troubles={troublesAgainst ?? []}
+                />
+                <TroubleReportedToggle
+                  count={reportedCount}
+                  troubles={troublesReported ?? []}
                 />
               </div>
             </div>
