@@ -28,7 +28,7 @@ export default async function ProfilePage({ params }: { params: { userId: string
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, username, bio, created_at")
+    .select("id, username, bio, avatar_url, interests, created_at")
     .eq("id", params.userId)
     .single();
 
@@ -88,8 +88,15 @@ export default async function ProfilePage({ params }: { params: { userId: string
         {/* プロフィールカード（新規独立） */}
         <div className="mb-4 rounded-2xl border border-hairline bg-white p-5">
           <div className="flex items-center gap-4 mb-4">
-            <div className="h-14 w-14 flex-shrink-0 rounded-full bg-gold-soft flex items-center justify-center text-xl font-medium text-gold">
-              {profile.username?.[0]?.toUpperCase() ?? "?"}
+            <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-full border border-hairline bg-gold-soft">
+              {profile.avatar_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={profile.avatar_url} alt={profile.username ?? ""} className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-xl font-medium text-gold">
+                  {profile.username?.[0]?.toUpperCase() ?? "?"}
+                </div>
+              )}
             </div>
             <div className="flex-1">
               <p className="text-base font-medium text-ink">{profile.username}</p>
@@ -104,12 +111,28 @@ export default async function ProfilePage({ params }: { params: { userId: string
             <p className="mb-4 text-sm italic text-neutral-300">自己紹介を追加しましょう</p>
           ) : null}
 
+          {/* 興味のあるジャンル */}
+          {(profile.interests ?? []).length > 0 && (
+            <div className="mb-4">
+              <p className="mb-2 text-xs text-subtle">興味のあるジャンル</p>
+              <div className="flex flex-wrap gap-1.5">
+                {(profile.interests ?? []).map((genre: string) => (
+                  <span key={genre} className="rounded-full border border-gold/30 bg-gold-soft px-3 py-1 text-xs text-gold">
+                    {genre}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* 自分のプロフィールのみ編集ボタンを表示 */}
           {isOwnProfile && (
             <ProfileEditForm
               userId={profile.id}
               initialUsername={profile.username ?? ""}
               initialBio={profile.bio ?? null}
+              initialAvatarUrl={profile.avatar_url ?? null}
+              initialInterests={profile.interests ?? []}
             />
           )}
         </div>
