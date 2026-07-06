@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import TroubleToggle from "./trouble-toggle";
+import ProfileEditForm from "./profile-edit-form";
 
 export const dynamic = "force-dynamic";
 
@@ -21,9 +22,13 @@ function StarBar({ count, total, label }: { count: number; total: number; label:
 export default async function ProfilePage({ params }: { params: { userId: string } }) {
   const supabase = createClient();
 
+  const { data: authData } = await supabase.auth.getUser();
+  const currentUserId = authData.user?.id ?? null;
+  const isOwnProfile = currentUserId === params.userId;
+
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, username, created_at")
+    .select("id, username, bio, created_at")
     .eq("id", params.userId)
     .single();
 
@@ -82,15 +87,34 @@ export default async function ProfilePage({ params }: { params: { userId: string
 
         {/* ユーザー情報 */}
         <div className="mb-4 rounded-2xl border border-hairline bg-white p-5">
-          <div className="flex items-center gap-4 mb-5">
+          <div className="flex items-center gap-4 mb-4">
             <div className="h-14 w-14 flex-shrink-0 rounded-full bg-gold-soft flex items-center justify-center text-xl font-medium text-gold">
               {profile.username?.[0]?.toUpperCase() ?? "?"}
             </div>
-            <div>
+            <div className="flex-1">
               <p className="text-base font-medium text-ink">{profile.username}</p>
               <p className="text-xs text-subtle">{joinYear}年{joinMonth}月から利用 · {totalReviews}回取引</p>
             </div>
           </div>
+
+          {/* 自己紹介 */}
+          {profile.bio && (
+            <p className="mb-4 text-sm leading-relaxed text-subtle">{profile.bio}</p>
+          )}
+          {!profile.bio && isOwnProfile && (
+            <p className="mb-4 text-sm text-neutral-300 italic">自己紹介を追加しましょう</p>
+          )}
+
+          {/* 自分のプロフィールのみ編集ボタンを表示 */}
+          {isOwnProfile && (
+            <div className="mb-4">
+              <ProfileEditForm
+                userId={profile.id}
+                initialUsername={profile.username ?? ""}
+                initialBio={profile.bio ?? null}
+              />
+            </div>
+          )}
 
           {/* 2カラムのメトリクス */}
           <div className="grid grid-cols-2 gap-2 mb-4">
