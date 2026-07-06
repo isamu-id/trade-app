@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import LoginScreen from "@/components/LoginScreen";
 import Header from "@/components/Header";
 import SearchBar from "@/components/SearchBar";
+import CategoryChips from "@/components/CategoryChips";
 import { CATEGORIES, type Item } from "@/types/database";
 
 export const dynamic = "force-dynamic";
@@ -158,17 +159,7 @@ export default async function HomePage({
           {/* カテゴリチップ */}
           <div className="mb-10">
             <h2 className="mb-4 text-base font-medium text-ink">カテゴリから探す</h2>
-            <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {CATEGORIES.map((category) => (
-                <button
-                  key={category}
-                  type="button"
-                  className="flex flex-shrink-0 items-center rounded-full border border-hairline bg-white px-4 py-2 text-sm text-subtle transition hover:border-gold hover:bg-gold-soft hover:text-gold"
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
+            <CategoryChips />
           </div>
 
           {itemsByCategory.length === 0 && (
