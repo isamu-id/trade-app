@@ -158,14 +158,23 @@ export default async function ProfilePage({ params }: { params: { userId: string
           <p className="text-sm font-medium text-ink mb-3">{totalReviews}回取引</p>
 
           {/* 2カラムのメトリクス */}
-          <div className="grid grid-cols-2 gap-2 mb-4">
-            <div className="rounded-xl bg-neutral-50 p-3 text-center">
-              <p className="text-2xl font-medium text-ink leading-none">{avgRating ?? "—"}</p>
-              <p className="text-amber-400 text-sm mt-1">
+          <div className="grid grid-cols-2 gap-2">
+            {/* 左: 総合評価 + 星分布バー */}
+            <div className="rounded-xl bg-neutral-50 p-3">
+              <p className="text-2xl font-medium text-ink leading-none text-center">{avgRating ?? "—"}</p>
+              <p className="text-amber-400 text-sm mt-1 text-center">
                 {avgRating ? "★".repeat(Math.round(Number(avgRating))) + "☆".repeat(5 - Math.round(Number(avgRating))) : "☆☆☆☆☆"}
               </p>
-              <p className="text-xs text-subtle mt-1">総合評価</p>
+              <p className="text-xs text-subtle mt-1 mb-3 text-center">総合評価</p>
+              {totalReviews > 0 && (
+                <div className="flex flex-col gap-1">
+                  {starCounts.map(({ star, count }) => (
+                    <StarBar key={star} label={star} count={count} total={totalReviews} />
+                  ))}
+                </div>
+              )}
             </div>
+            {/* 右: 取引回数 + トラブル */}
             <div className="rounded-xl bg-neutral-50 p-3 text-center">
               <p className="text-2xl font-medium text-ink leading-none">{totalReviews}</p>
               <p className="text-xs text-subtle mt-1 mb-2">取引回数</p>
@@ -182,15 +191,6 @@ export default async function ProfilePage({ params }: { params: { userId: string
               </div>
             </div>
           </div>
-
-          {/* 星の分布バー */}
-          {totalReviews > 0 && (
-            <div className="flex flex-col gap-1.5">
-              {starCounts.map(({ star, count }) => (
-                <StarBar key={star} label={star} count={count} total={totalReviews} />
-              ))}
-            </div>
-          )}
         </div>
 
         {/* 評価一覧 */}
