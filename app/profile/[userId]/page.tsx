@@ -85,7 +85,7 @@ export default async function ProfilePage({ params }: { params: { userId: string
           ← トップに戻る
         </Link>
 
-        {/* ユーザー情報 */}
+        {/* プロフィールカード（新規独立） */}
         <div className="mb-4 rounded-2xl border border-hairline bg-white p-5">
           <div className="flex items-center gap-4 mb-4">
             <div className="h-14 w-14 flex-shrink-0 rounded-full bg-gold-soft flex items-center justify-center text-xl font-medium text-gold">
@@ -93,28 +93,30 @@ export default async function ProfilePage({ params }: { params: { userId: string
             </div>
             <div className="flex-1">
               <p className="text-base font-medium text-ink">{profile.username}</p>
-              <p className="text-xs text-subtle">{joinYear}年{joinMonth}月から利用 · {totalReviews}回取引</p>
+              <p className="text-xs text-subtle">{joinYear}年{joinMonth}月から利用</p>
             </div>
           </div>
 
           {/* 自己紹介 */}
-          {profile.bio && (
+          {profile.bio ? (
             <p className="mb-4 text-sm leading-relaxed text-subtle">{profile.bio}</p>
-          )}
-          {!profile.bio && isOwnProfile && (
-            <p className="mb-4 text-sm text-neutral-300 italic">自己紹介を追加しましょう</p>
-          )}
+          ) : isOwnProfile ? (
+            <p className="mb-4 text-sm italic text-neutral-300">自己紹介を追加しましょう</p>
+          ) : null}
 
           {/* 自分のプロフィールのみ編集ボタンを表示 */}
           {isOwnProfile && (
-            <div className="mb-4">
-              <ProfileEditForm
-                userId={profile.id}
-                initialUsername={profile.username ?? ""}
-                initialBio={profile.bio ?? null}
-              />
-            </div>
+            <ProfileEditForm
+              userId={profile.id}
+              initialUsername={profile.username ?? ""}
+              initialBio={profile.bio ?? null}
+            />
           )}
+        </div>
+
+        {/* 評価カード */}
+        <div className="mb-4 rounded-2xl border border-hairline bg-white p-5">
+          <p className="text-sm font-medium text-ink mb-3">{totalReviews}回取引</p>
 
           {/* 2カラムのメトリクス */}
           <div className="grid grid-cols-2 gap-2 mb-4">
