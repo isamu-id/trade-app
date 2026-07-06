@@ -185,7 +185,7 @@ export default async function ProfilePage({ params }: { params: { userId: string
                 />
                 <TroubleReportedToggle
                   count={reportedCount}
-                  troubles={troublesReported ?? []}
+                  troubles={(troublesReported ?? []) as any}
                   reporterId={params.userId}
                 />
               </div>
