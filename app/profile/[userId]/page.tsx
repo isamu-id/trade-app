@@ -73,10 +73,17 @@ export default async function ProfilePage({ params }: { params: { userId: string
     .neq("reporter_id", params.userId)
     .order("created_at", { ascending: false });
 
-  // 自分が報告したトラブル（緑）- 全員に表示
+  // 自分が報告したトラブル（緑）- 相手の情報も取得
   const { data: troublesReported } = await supabase
     .from("chat_troubles")
-    .select("id, reason, resolved, created_at")
+    .select(`
+      id, reason, resolved, created_at,
+      offer:offer_id(
+        offerer_id,
+        offerer:offerer_id(id, username),
+        requesting_item:requesting_item_id(owner:owner_id(id, username))
+      )
+    `)
     .in("offer_id", userOfferIds.length > 0 ? userOfferIds : ["00000000-0000-0000-0000-000000000000"])
     .eq("reporter_id", params.userId)
     .order("created_at", { ascending: false });
@@ -170,6 +177,7 @@ export default async function ProfilePage({ params }: { params: { userId: string
                 <TroubleReportedToggle
                   count={reportedCount}
                   troubles={troublesReported ?? []}
+                  reporterId={params.userId}
                 />
               </div>
             </div>
