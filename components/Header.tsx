@@ -257,9 +257,12 @@ export default function Header({
                   setNotifOpen(false);
                 }}
                 aria-label="プロフィールメニュー"
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-gold-soft text-xs font-medium text-gold hover:bg-gold hover:text-white transition"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-white border border-neutral-200 hover:bg-neutral-50 transition"
               >
-                {username?.[0]?.toUpperCase() ?? "?"}
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-neutral-400" aria-hidden="true">
+                  <circle cx="12" cy="8" r="4"/>
+                  <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                </svg>
               </button>
 
               {profileOpen && (
@@ -277,7 +280,7 @@ export default function Header({
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="flex w-full items-center gap-2 border-t border-neutral-100 px-4 py-3 text-sm text-neutral-700 hover:bg-neutral-50"
+                    className="flex w-full items-center gap-2 px-4 py-3 text-sm text-neutral-700 hover:bg-neutral-50"
                   >
                     <svg width="14" height="14" viewBox="0 0 18 18" fill="none" aria-hidden="true">
                       <path d="M7 3H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
