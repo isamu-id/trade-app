@@ -109,6 +109,12 @@ export default async function HomePage({
     pendingOfferCount = count ?? 0;
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", auth.user.id)
+    .single();
+
   return (
     <main className="min-h-screen bg-white font-sans text-ink antialiased">
       <div className="mx-auto max-w-3xl">
@@ -116,6 +122,8 @@ export default async function HomePage({
           unreadCount={unreadCount}
           initialNotifications={notifications ?? []}
           pendingOfferCount={pendingOfferCount}
+          userId={auth.user.id}
+          username={profile?.username ?? ""}
         />
 
         {/* 検索バー */}

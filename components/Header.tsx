@@ -19,16 +19,21 @@ export default function Header({
   unreadCount,
   initialNotifications,
   pendingOfferCount,
+  userId,
+  username,
 }: {
   unreadCount: number;
   initialNotifications: Notification[];
   pendingOfferCount: number;
+  userId: string;
+  username: string;
 }) {
   const supabase = createClient();
   const router = useRouter();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [notifications, setNotifications] =
     useState<Notification[]>(initialNotifications);
 
@@ -243,17 +248,53 @@ export default function Header({
               )}
             </div>
 
-            {/* ログアウトボタン */}
-            <button onClick={handleLogout} className="rounded-full px-2.5 py-1.5 text-xs text-neutral-500 hover:bg-neutral-100">
-              ログアウト
-            </button>
+            {/* プロフィールアイコン（クリックでドロップダウン） */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setProfileOpen((v) => !v);
+                  setDrawerOpen(false);
+                  setNotifOpen(false);
+                }}
+                aria-label="プロフィールメニュー"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-gold-soft text-xs font-medium text-gold hover:bg-gold hover:text-white transition"
+              >
+                {username?.[0]?.toUpperCase() ?? "?"}
+              </button>
+
+              {profileOpen && (
+                <div className="absolute right-0 top-10 z-20 w-40 overflow-hidden rounded-2xl border border-neutral-100 bg-white shadow-lg">
+                  <Link
+                    href={`/profile/${userId}`}
+                    onClick={() => setProfileOpen(false)}
+                    className="flex items-center gap-2 px-4 py-3 text-sm text-neutral-700 hover:bg-neutral-50"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                      <circle cx="9" cy="6" r="3.5" stroke="currentColor" strokeWidth="1.5"/>
+                      <path d="M2 15c0-3.3 3.1-6 7-6s7 2.7 7 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                    プロフィール
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-2 border-t border-neutral-100 px-4 py-3 text-sm text-neutral-700 hover:bg-neutral-50"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                      <path d="M7 3H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                      <path d="M12 12l3-3-3-3M7 9h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    ログアウト
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
       {/* オーバーレイ */}
-      {(drawerOpen || notifOpen) && (
-        <div className="fixed inset-x-0 bottom-0 top-[65px] z-10 bg-black/20" onClick={() => { setDrawerOpen(false); setNotifOpen(false); }} />
+      {(drawerOpen || notifOpen || profileOpen) && (
+        <div className="fixed inset-x-0 bottom-0 top-[65px] z-10 bg-black/20" onClick={() => { setDrawerOpen(false); setNotifOpen(false); setProfileOpen(false); }} />
       )}
 
       {/* ドロワー */}
