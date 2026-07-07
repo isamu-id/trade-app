@@ -89,19 +89,17 @@ function OfferCardItem({ offer }: { offer: OfferCard }) {
 }
 
 export default function OffersTabs({ offers }: { offers: OfferCard[] }) {
-  const active = offers.filter((o) => o.status === "accepted");
-  const pending = offers.filter((o) => o.status === "pending");
+  const active = offers.filter((o) => o.status === "accepted" || o.status === "pending");
   const done = offers.filter((o) => o.status === "completed" || o.status === "cancelled");
 
-  const [tab, setTab] = useState<"active" | "pending" | "done">("active");
+  const [tab, setTab] = useState<"active" | "done">("active");
 
   const tabs = [
-    { key: "active", label: "取引中", count: active.length },
-    { key: "pending", label: "承諾待ち", count: pending.length },
+    { key: "active", label: "取引中/承諾待ち", count: active.length },
     { key: "done", label: "完了", count: done.length },
   ] as const;
 
-  const current = tab === "active" ? active : tab === "pending" ? pending : done;
+  const current = tab === "active" ? active : done;
 
   return (
     <>
@@ -131,9 +129,7 @@ export default function OffersTabs({ offers }: { offers: OfferCard[] }) {
       {current.length === 0 ? (
         <div className="rounded-2xl border-2 border-dashed border-hairline py-16 text-center">
           <p className="text-sm text-subtle">
-            {tab === "active" ? "取引中のオファーはありません" :
-             tab === "pending" ? "承諾待ちのオファーはありません" :
-             "完了したオファーはありません"}
+            {tab === "active" ? "取引中・承諾待ちのオファーはありません" : "完了したオファーはありません"}
           </p>
         </div>
       ) : (
