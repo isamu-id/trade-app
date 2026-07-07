@@ -1,15 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { CATEGORIES } from "@/types/database";
 
 export default function CategoryChips() {
   const [expanded, setExpanded] = useState(false);
-  const [selected, setSelected] = useState<string | null>(null);
-
-  function toggleCategory(category: string) {
-    setSelected((prev) => (prev === category ? null : category));
-  }
 
   return (
     <div>
@@ -18,18 +14,13 @@ export default function CategoryChips() {
         style={{ maxHeight: expanded ? "500px" : "40px" }}
       >
         {CATEGORIES.map((category) => (
-          <button
+          <Link
             key={category}
-            type="button"
-            onClick={() => toggleCategory(category)}
-            className={`flex-shrink-0 rounded-full border px-4 py-2 text-sm transition ${
-              selected === category
-                ? "border-gold bg-gold-soft text-gold"
-                : "border-hairline bg-white text-subtle hover:border-gold hover:bg-gold-soft hover:text-gold"
-            }`}
+            href={`/category/${encodeURIComponent(category)}`}
+            className="flex-shrink-0 rounded-full border border-hairline bg-white px-4 py-2 text-sm text-subtle transition hover:border-gold hover:bg-gold-soft hover:text-gold"
           >
             {category}
-          </button>
+          </Link>
         ))}
       </div>
 
