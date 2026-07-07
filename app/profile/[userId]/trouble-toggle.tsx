@@ -10,52 +10,44 @@ type Trouble = {
   reporter: { username: any } | { username: any }[] | null;
 };
 
-export default function TroubleToggle({
-  count,
+function TroubleGroup({
   troubles,
+  type,
 }: {
-  count: number;
   troubles: Trouble[];
+  type: "unresolved" | "resolved";
 }) {
   const [open, setOpen] = useState(false);
+  if (troubles.length === 0) return null;
 
-  if (count === 0) {
-    return <p className="text-xs text-subtle">トラブルなし</p>;
-  }
-
-  const unresolvedCount = troubles.filter((t) => !t.resolved).length;
+  const isUnresolved = type === "unresolved";
+  const label = isUnresolved ? "未解決" : "解決済み";
+  const colorText = isUnresolved ? "text-red-400" : "text-green-500";
+  const borderColor = isUnresolved ? "border-red-100" : "border-green-100";
+  const bgColor = isUnresolved ? "bg-red-50" : "bg-green-50";
+  const textColor = isUnresolved ? "text-red-500" : "text-green-600";
+  const mutedColor = isUnresolved ? "text-red-300" : "text-green-400";
 
   return (
     <div>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="text-xs font-medium text-red-400 hover:text-red-500 transition"
+        className={`text-xs font-medium transition ${colorText} hover:opacity-80`}
       >
-        トラブル {count}件{unresolvedCount > 0 && ` (未解決 ${unresolvedCount}件)`} {open ? "▲" : "▼"}
+        {label} {troubles.length}件 {open ? "▲" : "▼"}
       </button>
 
       {open && (
-        <div className="mt-3 rounded-xl border border-red-100 bg-red-50 overflow-hidden text-left">
+        <div className={`mt-2 overflow-hidden rounded-xl border ${borderColor} ${bgColor} text-left`}>
           {troubles.map((t) => {
             const username = Array.isArray(t.reporter)
               ? t.reporter[0]?.username
               : (t.reporter as any)?.username;
             return (
-              <div key={t.id} className="px-3 py-2.5 border-b border-red-100 last:border-b-0">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-red-400">@{username}</span>
-                  <span className={`text-xs font-medium rounded-full px-2 py-0.5 border ${
-                    t.resolved
-                      ? "bg-green-100 text-green-600 border-green-200"
-                      : "bg-red-100 text-red-500 border-red-200"
-                  }`}>
-                    {t.resolved ? "✓ 解決済み" : "未解決"}
-                  </span>
-                </div>
-                <p className={`text-xs leading-relaxed mb-1 ${t.resolved ? "text-green-500" : "text-red-500"}`}>
-                  {t.reason}
-                </p>
-                <p className="text-[10px] text-red-300">
+              <div key={t.id} className={`border-b ${borderColor} px-3 py-2.5 last:border-b-0`}>
+                <p className={`text-xs font-medium mb-0.5 ${colorText}`}>@{username}</p>
+                <p className={`text-xs leading-relaxed mb-1 ${textColor}`}>{t.reason}</p>
+                <p className={`text-[10px] ${mutedColor}`}>
                   {new Date(t.created_at).toLocaleDateString("ja-JP", { year: "numeric", month: "long" })}
                 </p>
               </div>
@@ -63,6 +55,26 @@ export default function TroubleToggle({
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+export default function TroubleToggle({
+  count,
+  troubles,
+}: {
+  count: number;
+  troubles: Trouble[];
+}) {
+  if (count === 0) return <p className="text-xs text-subtle">トラブルなし</p>;
+
+  const unresolved = troubles.filter((t) => !t.resolved);
+  const resolved = troubles.filter((t) => t.resolved);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <TroubleGroup troubles={unresolved} type="unresolved" />
+      <TroubleGroup troubles={resolved} type="resolved" />
     </div>
   );
 }
