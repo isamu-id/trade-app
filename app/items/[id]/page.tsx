@@ -116,7 +116,12 @@ export default async function ItemDetailPage({ params }: { params: { id: string 
             <p className="mb-3 text-sm text-subtle">{item.category} ・ {item.condition}</p>
             <p className="mb-4 text-sm leading-relaxed text-subtle">{item.description}</p>
             {isOwner && (
-              <span className="inline-block rounded-full bg-gold-soft px-3 py-1 text-xs text-gold">自分が出品した商品です</span>
+              <div className="flex items-center gap-2">
+                <span className="inline-block rounded-full bg-gold-soft px-3 py-1 text-xs text-gold">自分が出品した商品です</span>
+                <Link href={`/items/${item.id}/edit`} className="inline-block rounded-full border border-hairline px-3 py-1 text-xs text-subtle transition hover:bg-gold-soft hover:text-gold hover:border-gold">
+                  編集する
+                </Link>
+              </div>
             )}
             {!isOwner && hasPendingOffer && (
               <span className="inline-block rounded-full bg-gold-soft px-3 py-1 text-xs text-gold">交渉中です</span>
