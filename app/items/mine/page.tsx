@@ -57,6 +57,17 @@ export default async function MyItemsPage() {
                 </span>
                 <span className="absolute inset-x-0 bottom-0 truncate bg-black/50 px-2 py-1 text-[11px] text-white">{item.title}</span>
               </Link>
+              {/* 編集ボタン */}
+              <Link
+                href={`/items/${item.id}/edit`}
+                className="absolute right-7 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-white transition hover:bg-black/70"
+                aria-label="編集"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </Link>
               <DeleteItemButton itemId={item.id} />
             </div>
           ))}
