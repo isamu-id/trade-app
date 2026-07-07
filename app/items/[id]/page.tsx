@@ -79,7 +79,18 @@ export default async function ItemDetailPage({ params }: { params: { id: string 
           <Link href="/" className="-ml-1 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm text-subtle transition hover:bg-gold-soft hover:text-gold">
             ← トップに戻る
           </Link>
-          <RefreshButton />
+          <div className="flex items-center gap-2">
+            <RefreshButton />
+            {isOwner && (
+              <Link href={`/items/${item.id}/edit`} className="inline-flex items-center gap-1.5 rounded-full border border-hairline px-3 py-1.5 text-xs text-subtle transition hover:bg-gold-soft hover:text-gold hover:border-gold">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                編集する
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* 写真 */}
@@ -116,12 +127,7 @@ export default async function ItemDetailPage({ params }: { params: { id: string 
             <p className="mb-3 text-sm text-subtle">{item.category} ・ {item.condition}</p>
             <p className="mb-4 text-sm leading-relaxed text-subtle">{item.description}</p>
             {isOwner && (
-              <div className="flex items-center gap-2">
-                <span className="inline-block rounded-full bg-gold-soft px-3 py-1 text-xs text-gold">自分が出品した商品です</span>
-                <Link href={`/items/${item.id}/edit`} className="inline-block rounded-full border border-hairline px-3 py-1 text-xs text-subtle transition hover:bg-gold-soft hover:text-gold hover:border-gold">
-                  編集する
-                </Link>
-              </div>
+              <span className="inline-block rounded-full bg-gold-soft px-3 py-1 text-xs text-gold">自分が出品した商品です</span>
             )}
             {!isOwner && hasPendingOffer && (
               <span className="inline-block rounded-full bg-gold-soft px-3 py-1 text-xs text-gold">交渉中です</span>
