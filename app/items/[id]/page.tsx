@@ -87,7 +87,7 @@ export default async function ItemDetailPage({ params }: { params: { id: string 
           <div className="mb-5">
             <div className="mb-2 h-64 w-full overflow-hidden rounded-2xl bg-neutral-100">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={item.images[0]} alt={item.title} className="h-full w-full object-cover" id="main-img" />
+              <img src={item.images[0]} alt={item.title} className="h-full w-full object-contain" id="main-img" />
             </div>
             {item.images.length > 1 && (
               <div className="flex gap-2 overflow-x-auto pb-1">
@@ -97,7 +97,7 @@ export default async function ItemDetailPage({ params }: { params: { id: string 
                     if (el) el.src = url;
                   }} className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl border-2 border-transparent hover:border-gold transition">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={url} alt={`写真${i + 1}`} className="h-full w-full object-cover" />
+                    <img src={url} alt={`写真${i + 1}`} className="h-full w-full object-contain bg-neutral-100" />
                   </button>
                 ))}
               </div>
