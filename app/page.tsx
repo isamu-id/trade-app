@@ -189,7 +189,7 @@ export default async function HomePage({
                           <img
                             src={item.images[0]}
                             alt={item.title}
-                            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                            className="h-full w-full object-contain transition duration-500 group-hover:scale-105"
                           />
                         ) : (
                           <span className="flex h-full w-full items-center justify-center text-xs text-subtle">画像なし</span>
