@@ -77,12 +77,44 @@ export default function TroubleManager({
   async function handleResolve() {
     if (!trouble) return;
     setLoading(true);
+    const newResolved = !trouble.resolved;
+
     const { error: err } = await supabase
       .from("chat_troubles")
-      .update({ resolved: !trouble.resolved })
+      .update({ resolved: newResolved })
       .eq("id", trouble.id);
+
+    if (err) { setError("更新に失敗しました"); setLoading(false); return; }
+
+    // 解決済みにした場合のみ通知を送る
+    if (newResolved) {
+      // オファーから相手のIDを取得
+      const { data: offer } = await supabase
+        .from("trade_offers")
+        .select("offerer_id, requesting_item:requesting_item_id(owner_id)")
+        .eq("id", offerId)
+        .single();
+
+      if (offer) {
+        const requestingItem = Array.isArray(offer.requesting_item)
+          ? offer.requesting_item[0]
+          : offer.requesting_item;
+        const otherUserId = currentUserId === offer.offerer_id
+          ? requestingItem?.owner_id
+          : offer.offerer_id;
+
+        if (otherUserId) {
+          await supabase.from("notifications").insert({
+            user_id: otherUserId,
+            title: "トラブルが解決されました",
+            body: "報告していたトラブルが解決済みになりました。",
+            offer_id: offerId,
+          });
+        }
+      }
+    }
+
     setLoading(false);
-    if (err) setError("更新に失敗しました");
   }
 
   const isReporter = trouble?.reporter_id === currentUserId;
