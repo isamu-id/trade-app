@@ -82,15 +82,35 @@ export default async function ItemDetailPage({ params }: { params: { id: string 
           <RefreshButton />
         </div>
 
-        <div className="flex gap-5">
-          <div className="h-40 w-40 flex-shrink-0 overflow-hidden rounded-2xl bg-neutral-100">
-            {item.images?.[0] ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={item.images[0]} alt={item.title} className="h-full w-full object-cover" />
-            ) : (
-              <span className="flex h-full w-full items-center justify-center text-xs text-subtle">画像なし</span>
+        {/* 写真 */}
+        {(item.images?.length ?? 0) > 0 && (
+          <div className="mb-5">
+            <div className="mb-2 h-64 w-full overflow-hidden rounded-2xl bg-neutral-100">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={item.images[0]} alt={item.title} className="h-full w-full object-cover" id="main-img" />
+            </div>
+            {item.images.length > 1 && (
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {item.images.map((url: string, i: number) => (
+                  <button key={i} type="button" onClick={() => {
+                    const el = document.getElementById('main-img') as HTMLImageElement;
+                    if (el) el.src = url;
+                  }} className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl border-2 border-transparent hover:border-gold transition">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={url} alt={`写真${i + 1}`} className="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
             )}
           </div>
+        )}
+
+        <div className="flex gap-5">
+          {!(item.images?.length > 0) && (
+            <div className="h-40 w-40 flex-shrink-0 overflow-hidden rounded-2xl bg-neutral-100">
+              <span className="flex h-full w-full items-center justify-center text-xs text-subtle">画像なし</span>
+            </div>
+          )}
           <div className="flex-1">
             <h1 className="mb-1.5 text-xl font-semibold tracking-tight text-ink">{item.title}</h1>
             <p className="mb-3 text-sm text-subtle">{item.category} ・ {item.condition}</p>
