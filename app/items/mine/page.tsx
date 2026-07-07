@@ -46,7 +46,7 @@ export default async function MyItemsPage() {
               <Link href={`/items/${item.id}`} className="absolute inset-0">
                 {item.images?.[0] ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={item.images[0]} alt={item.title} className="h-full w-full object-cover" />
+                  <img src={item.images[0]} alt={item.title} className="h-full w-full object-contain" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-neutral-100">
                     <span className="text-xs text-subtle">画像なし</span>
