@@ -154,7 +154,8 @@ export default function EditItemForm({ item }: { item: Item }) {
 
     setLoading(false);
     if (updateError) { setError(updateError.message); return; }
-    router.push("/items/mine");
+    router.refresh();
+    router.push(`/items/${item.id}`);
   }
 
   return (
