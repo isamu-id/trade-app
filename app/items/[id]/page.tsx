@@ -69,7 +69,8 @@ export default async function ItemDetailPage({ params }: { params: { id: string 
     const { count } = await supabase
       .from("chat_troubles")
       .select("*", { count: "exact", head: true })
-      .in("offer_id", ownerOfferIds);
+      .in("offer_id", ownerOfferIds)
+      .neq("reporter_id", item.owner_id); // 報告された側のみ（報告した側は除外）
     ownerTroubleCount = count ?? 0;
   }
 
