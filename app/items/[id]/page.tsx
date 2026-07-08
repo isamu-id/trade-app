@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import OfferButton from "./offer-button";
 import QandA from "./q-and-a";
 import RefreshButton from "./refresh-button";
+import ImageGallery from "./image-gallery";
 
 export const dynamic = "force-dynamic";
 
@@ -95,25 +96,7 @@ export default async function ItemDetailPage({ params }: { params: { id: string 
 
         {/* 写真 */}
         {(item.images?.length ?? 0) > 0 && (
-          <div className="mb-5">
-            <div className="mb-2 h-64 w-full overflow-hidden rounded-2xl bg-neutral-100">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={item.images[0]} alt={item.title} className="h-full w-full object-contain" id="main-img" />
-            </div>
-            {item.images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {item.images.map((url: string, i: number) => (
-                  <button key={i} type="button" onClick={() => {
-                    const el = document.getElementById('main-img') as HTMLImageElement;
-                    if (el) el.src = url;
-                  }} className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl border-2 border-transparent hover:border-gold transition">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={url} alt={`写真${i + 1}`} className="h-full w-full object-contain bg-neutral-100" />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <ImageGallery images={item.images} title={item.title} />
         )}
 
         <div className="flex gap-5">
