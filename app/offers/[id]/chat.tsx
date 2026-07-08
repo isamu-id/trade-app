@@ -2,68 +2,51 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import TroubleManager from "./trouble-manager";
 import type { Message } from "@/types/database";
 
 export default function Chat({
   offerId,
   currentUserId,
   initialMessages,
+  offerStatus,
 }: {
   offerId: string;
   currentUserId: string;
   initialMessages: Message[];
+  offerStatus: string;
 }) {
   const supabase = createClient();
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [content, setContent] = useState("");
-  const [refreshing, setRefreshing] = useState(false);
   const [uploading, setUploading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function fetchMessages() {
-    setRefreshing(true);
     const { data } = await supabase
-      .from("messages")
-      .select("*")
+      .from("messages").select("*")
       .eq("offer_id", offerId)
       .order("created_at", { ascending: true });
     if (data) setMessages(data as Message[]);
-    setRefreshing(false);
   }
 
   useEffect(() => {
     const channel = supabase
       .channel(`messages-${offerId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `offer_id=eq.${offerId}`,
-        },
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `offer_id=eq.${offerId}` },
         (payload) => {
           setMessages((prev) => {
-            if (prev.some((m) => m.id === (payload.new as Message).id)) {
-              return prev;
-            }
+            if (prev.some((m) => m.id === (payload.new as Message).id)) return prev;
             return [...prev, payload.new as Message];
           });
         }
-      )
-      .subscribe();
+      ).subscribe();
 
     const interval = setInterval(fetchMessages, 10000);
-
-    const handleAppRefresh = () => fetchMessages();
-    window.addEventListener("app:refresh", handleAppRefresh);
-
-    return () => {
-      supabase.removeChannel(channel);
-      clearInterval(interval);
-      window.removeEventListener("app:refresh", handleAppRefresh);
-    };
+    const handleRefresh = () => fetchMessages();
+    window.addEventListener("app:refresh", handleRefresh);
+    return () => { supabase.removeChannel(channel); clearInterval(interval); window.removeEventListener("app:refresh", handleRefresh); };
   }, [offerId]);
 
   useEffect(() => {
@@ -71,27 +54,15 @@ export default function Chat({
   }, [messages]);
 
   async function postMessage(messageContent: string) {
-    const { data, error } = await supabase
-      .from("messages")
-      .insert({
-        offer_id: offerId,
-        sender_id: currentUserId,
-        content: messageContent,
-      })
-      .select()
-      .single();
-
+    const { data, error } = await supabase.from("messages").insert({
+      offer_id: offerId, sender_id: currentUserId, content: messageContent,
+    }).select().single();
     if (!error && data) {
-      setMessages((prev) => {
-        if (prev.some((m) => m.id === data.id)) return prev;
-        return [...prev, data as Message];
-      });
-      await supabase
-        .from("message_reads")
-        .upsert(
-          { offer_id: offerId, user_id: currentUserId, read_at: new Date().toISOString() },
-          { onConflict: "offer_id,user_id" }
-        );
+      setMessages((prev) => prev.some((m) => m.id === data.id) ? prev : [...prev, data as Message]);
+      await supabase.from("message_reads").upsert(
+        { offer_id: offerId, user_id: currentUserId, read_at: new Date().toISOString() },
+        { onConflict: "offer_id,user_id" }
+      );
     }
   }
 
@@ -106,60 +77,33 @@ export default function Chat({
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
-
     const path = `chat/${offerId}/${Date.now()}-${file.name}`;
-    const { error: uploadError } = await supabase.storage
-      .from("item-images")
-      .upload(path, file);
-
-    if (uploadError) {
-      alert("画像のアップロードに失敗しました: " + uploadError.message);
-      setUploading(false);
-      return;
-    }
-
-    const { data: urlData } = supabase.storage
-      .from("item-images")
-      .getPublicUrl(path);
-
-    // 画像URLをメッセージとして送信（img:プレフィックスで画像と判別）
+    const { error } = await supabase.storage.from("item-images").upload(path, file);
+    if (error) { alert("画像のアップロードに失敗しました"); setUploading(false); return; }
+    const { data: urlData } = supabase.storage.from("item-images").getPublicUrl(path);
     await postMessage(`img:${urlData.publicUrl}`);
     setUploading(false);
-
-    // ファイル入力をリセット
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
   return (
-    <div>
-      <div className="mb-1 flex items-center justify-between">
-        <p className="text-xs text-gray-400">
-          {refreshing ? "更新中..." : "10秒ごとに自動更新されます"}
-        </p>
-        <button
-          onClick={fetchMessages}
-          className="text-xs text-blue-600 underline"
-        >
-          今すぐ更新
-        </button>
-      </div>
-
-      {/* チャットエリア（h-52の2倍 = h-104） */}
-      <div className="flex h-104 flex-col gap-2 overflow-y-auto rounded-lg bg-gray-50 p-3">
+    <div className="flex flex-col gap-3">
+      {/* メッセージエリア */}
+      <div className="flex min-h-64 flex-col gap-3 overflow-y-auto rounded-2xl border border-hairline bg-neutral-50 p-4">
         {messages.map((m) => {
-          const isSystem = !m.sender_id || m.content.startsWith("🤝") || m.content.startsWith("🎉") || m.content.startsWith("🎁");
+          const isSystem = !m.sender_id || m.content.startsWith("🤝") || m.content.startsWith("🎉") || m.content.startsWith("🎁") || m.content.startsWith("🚨");
           const isImage = m.content.startsWith("img:");
+          const isMe = m.sender_id === currentUserId;
 
           if (isSystem) {
-            const emoji = m.content.startsWith("🤝") ? "🤝"
-              : m.content.startsWith("🎉") ? "🎉"
-              : m.content.startsWith("🎁") ? "🎁"
-              : "📢";
-            const text = m.content.replace(/^(🤝|🎉|🎁) /, "");
+            const text = m.content.replace(/^(🤝|🎉|🎁|🚨) /, "");
+            const emoji = m.content.match(/^(🤝|🎉|🎁|🚨)/)?.[0] ?? "📢";
             return (
-              <div key={m.id} className="flex flex-col items-center gap-1 py-2">
-                <span className="text-2xl">{emoji}</span>
-                <p className="text-center text-xs font-medium text-gray-600">{text}</p>
+              <div key={m.id} className="flex flex-col items-center gap-1 py-1">
+                <div className="flex items-center gap-2 rounded-xl border border-hairline bg-white px-4 py-2">
+                  <span className="text-base">{emoji}</span>
+                  <p className="text-xs text-subtle">{text}</p>
+                </div>
               </div>
             );
           }
@@ -167,45 +111,28 @@ export default function Chat({
           if (isImage) {
             const url = m.content.replace("img:", "");
             return (
-              <div
-                key={m.id}
-                className={`max-w-[75%] ${
-                  m.sender_id === currentUserId ? "self-end" : "self-start"
-                }`}
-              >
+              <div key={m.id} className={`flex flex-col gap-1 ${isMe ? "items-end" : "items-start"}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={url}
-                  alt="送信された画像"
-                  className="max-w-full rounded-lg"
-                  style={{ maxHeight: "200px", objectFit: "contain" }}
-                />
-                <p className="mt-0.5 text-[10px] text-gray-400">
-                  {new Date(m.created_at).toLocaleTimeString("ja-JP", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
+                <img src={url} alt="送信された画像" className="max-h-48 max-w-[75%] rounded-xl object-contain" />
+                <span className="text-[10px] text-subtle">
+                  {new Date(m.created_at).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}
+                </span>
               </div>
             );
           }
 
           return (
-            <div
-              key={m.id}
-              className={`max-w-[75%] rounded-lg px-3 py-1.5 text-sm ${
-                m.sender_id === currentUserId
-                  ? "self-end bg-blue-100"
-                  : "self-start border border-gray-200 bg-white"
-              }`}
-            >
-              <p>{m.content}</p>
-              <p className="mt-0.5 text-[10px] text-gray-400">
-                {new Date(m.created_at).toLocaleTimeString("ja-JP", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
+            <div key={m.id} className={`flex flex-col gap-0.5 ${isMe ? "items-end" : "items-start"}`}>
+              <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                isMe
+                  ? "rounded-br-sm bg-gold text-white"
+                  : "rounded-bl-sm border border-hairline bg-white text-ink"
+              }`}>
+                {m.content}
+              </div>
+              <span className="text-[10px] text-subtle">
+                {new Date(m.created_at).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}
+              </span>
             </div>
           );
         })}
@@ -213,16 +140,15 @@ export default function Chat({
       </div>
 
       {/* 入力エリア */}
-      <div className="mt-2 flex gap-2">
-        {/* 画像添付ボタン */}
+      <div className="flex items-center gap-2">
         <button
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
           aria-label="画像を送る"
-          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-hairline bg-white text-subtle transition hover:bg-gold-soft hover:text-gold disabled:opacity-50"
         >
           {uploading ? (
-            <svg className="spinner" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <svg className="animate-spin" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" strokeDasharray="28" strokeDashoffset="10" strokeLinecap="round"/>
             </svg>
           ) : (
@@ -233,29 +159,30 @@ export default function Chat({
             </svg>
           )}
         </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleImageUpload}
-          className="hidden"
-        />
-
+        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
         <input
           type="text"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           placeholder="メッセージを入力"
-          className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm"
+          className="flex-1 rounded-full border border-hairline px-4 py-2.5 text-sm text-ink outline-none transition focus:border-gold focus:ring-4 focus:ring-gold-soft"
         />
         <button
           onClick={sendMessage}
-          className="rounded-lg border border-gray-300 px-4 text-sm"
+          aria-label="送信"
+          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gold text-white transition hover:bg-gold/90"
         >
-          送信
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
         </button>
       </div>
+
+      {/* トラブル報告（取引中のみ） */}
+      {offerStatus === "accepted" && (
+        <TroubleManager offerId={offerId} currentUserId={currentUserId} />
+      )}
     </div>
   );
 }
