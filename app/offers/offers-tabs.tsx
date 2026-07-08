@@ -15,18 +15,21 @@ type OfferCard = {
   createdAt: string;
 };
 
-function ItemThumb({ item }: { item: OfferCard["myItem"] }) {
+function ItemThumb({ item, subLabel }: { item: OfferCard["myItem"]; subLabel: string }) {
   return (
     <div className="flex flex-1 items-center gap-2 min-w-0">
       <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl bg-neutral-100">
         {item?.images?.[0] ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={item.images[0]} alt={item.title ?? ""} className="h-full w-full object-contain" />
+          <img src={item.images[0]} alt={item?.title ?? ""} className="h-full w-full object-contain" />
         ) : (
           <div className="h-full w-full bg-neutral-100" />
         )}
       </div>
-      <p className="truncate text-xs font-medium text-ink">{item?.title ?? "—"}</p>
+      <div className="min-w-0">
+        <p className="truncate text-xs font-medium text-ink">{item?.title ?? "—"}</p>
+        <p className="text-[11px] text-subtle truncate">{subLabel}</p>
+      </div>
     </div>
   );
 }
@@ -52,9 +55,9 @@ function OfferCardItem({ offer }: { offer: OfferCard }) {
     >
       {/* 商品画像 */}
       <div className="mb-3 flex items-center gap-2">
-        <ItemThumb item={offer.myItem} />
+        <ItemThumb item={offer.myItem} subLabel="自分の商品" />
         <span className="flex-shrink-0 text-base text-gold">⇄</span>
-        <ItemThumb item={offer.theirItem} />
+        <ItemThumb item={offer.theirItem} subLabel={`@${offer.partnerUsername}`} />
       </div>
 
       {/* ステータス・相手名・未読 */}

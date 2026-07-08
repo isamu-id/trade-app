@@ -22,6 +22,7 @@ export default function Chat({
   const [uploading, setUploading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isFirstLoad = useRef(true);
 
   async function fetchMessages() {
     const { data } = await supabase
@@ -50,7 +51,10 @@ export default function Chat({
   }, [offerId]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (isFirstLoad.current) {
+      bottomRef.current?.scrollIntoView({ behavior: "instant" });
+      isFirstLoad.current = false;
+    }
   }, [messages]);
 
   async function postMessage(messageContent: string) {
