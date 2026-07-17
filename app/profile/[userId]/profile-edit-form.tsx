@@ -12,6 +12,8 @@ type Props = {
   initialBio: string | null;
   initialAvatarUrl: string | null;
   initialInterests: string[];
+  initialXId: string | null;
+  initialInstagramId: string | null;
 };
 
 export default function ProfileEditForm({
@@ -20,6 +22,8 @@ export default function ProfileEditForm({
   initialBio,
   initialAvatarUrl,
   initialInterests,
+  initialXId,
+  initialInstagramId,
 }: Props) {
   const supabase = createClient();
   const router = useRouter();
@@ -32,6 +36,8 @@ export default function ProfileEditForm({
   const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(initialAvatarUrl);
+  const [xId, setXId] = useState(initialXId ?? "");
+  const [instagramId, setInstagramId] = useState(initialInstagramId ?? "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -78,6 +84,8 @@ export default function ProfileEditForm({
         bio: bio.trim() || null,
         avatar_url: newAvatarUrl,
         interests,
+        x_id: xId.trim().replace(/^@/, "") || null,
+        instagram_id: instagramId.trim().replace(/^@/, "") || null,
       })
       .eq("id", userId);
 
@@ -172,6 +180,56 @@ export default function ProfileEditForm({
           <p className="mt-1 text-right text-xs text-subtle">{bio.length} / 200</p>
         </div>
 
+        {/* SNSアカウント */}
+        <div>
+          <label className="mb-2 block text-xs text-subtle">SNSアカウント（任意）</label>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+              </div>
+              <div className="relative flex-1">
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-subtle">@</span>
+                <input
+                  type="text"
+                  value={xId}
+                  onChange={(e) => setXId(e.target.value.replace(/^@/, ""))}
+                  placeholder="XのユーザーID"
+                  className="w-full rounded-xl border border-hairline py-2.5 pl-7 pr-4 text-sm text-ink outline-none transition focus:border-gold focus:ring-4 focus:ring-gold-soft"
+                />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="ig-edit" x1="0%" y1="100%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#f09433"/>
+                      <stop offset="50%" stopColor="#dc2743"/>
+                      <stop offset="100%" stopColor="#bc1888"/>
+                    </linearGradient>
+                  </defs>
+                  <rect x="2" y="2" width="20" height="20" rx="5" fill="url(#ig-edit)"/>
+                  <circle cx="12" cy="12" r="4.5" stroke="#fff" strokeWidth="1.5"/>
+                  <circle cx="17.5" cy="6.5" r="1" fill="#fff"/>
+                </svg>
+              </div>
+              <div className="relative flex-1">
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-subtle">@</span>
+                <input
+                  type="text"
+                  value={instagramId}
+                  onChange={(e) => setInstagramId(e.target.value.replace(/^@/, ""))}
+                  placeholder="InstagramのユーザーID"
+                  className="w-full rounded-xl border border-hairline py-2.5 pl-7 pr-4 text-sm text-ink outline-none transition focus:border-gold focus:ring-4 focus:ring-gold-soft"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* 興味のあるジャンル */}
         <div>
           <label className="mb-2 block text-xs text-subtle">
@@ -209,6 +267,8 @@ export default function ProfileEditForm({
               setInterests(initialInterests);
               setAvatarPreview(initialAvatarUrl);
               setAvatarFile(null);
+              setXId(initialXId ?? "");
+              setInstagramId(initialInstagramId ?? "");
             }}
             className="flex-1 rounded-full border border-hairline py-2.5 text-sm text-subtle transition hover:bg-neutral-50"
           >

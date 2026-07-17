@@ -29,7 +29,7 @@ export default async function ProfilePage({ params }: { params: { userId: string
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, username, bio, avatar_url, interests, created_at")
+    .select("id, username, bio, avatar_url, interests, x_id, instagram_id, created_at")
     .eq("id", params.userId)
     .single();
 
@@ -127,6 +127,53 @@ export default async function ProfilePage({ params }: { params: { userId: string
             <p className="mb-4 text-sm italic text-neutral-300">自己紹介を追加しましょう</p>
           ) : null}
 
+          {/* SNSリンク */}
+          {(profile.x_id || profile.instagram_id) && (
+            <div className="mb-4 flex flex-wrap gap-2">
+              {profile.x_id && (
+                <a
+                  href={`https://x.com/${profile.x_id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-hairline px-3 py-1.5 text-xs text-ink transition hover:border-neutral-400 hover:bg-neutral-50"
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                  </svg>
+                  @{profile.x_id}
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-subtle" aria-hidden="true">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                  </svg>
+                </a>
+              )}
+              {profile.instagram_id && (
+                <a
+                  href={`https://instagram.com/${profile.instagram_id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-hairline px-3 py-1.5 text-xs text-ink transition hover:border-pink-300 hover:bg-pink-50"
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <defs>
+                      <linearGradient id="ig-profile" x1="0%" y1="100%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#f09433"/>
+                        <stop offset="50%" stopColor="#dc2743"/>
+                        <stop offset="100%" stopColor="#bc1888"/>
+                      </linearGradient>
+                    </defs>
+                    <rect x="2" y="2" width="20" height="20" rx="5" fill="url(#ig-profile)"/>
+                    <circle cx="12" cy="12" r="4.5" stroke="#fff" strokeWidth="1.5"/>
+                    <circle cx="17.5" cy="6.5" r="1" fill="#fff"/>
+                  </svg>
+                  @{profile.instagram_id}
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-subtle" aria-hidden="true">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                  </svg>
+                </a>
+              )}
+            </div>
+          )}
+
           {/* 興味のあるジャンル */}
           {(profile.interests ?? []).length > 0 && (
             <div className="mb-4">
@@ -149,6 +196,8 @@ export default async function ProfilePage({ params }: { params: { userId: string
               initialBio={profile.bio ?? null}
               initialAvatarUrl={profile.avatar_url ?? null}
               initialInterests={profile.interests ?? []}
+              initialXId={profile.x_id ?? null}
+              initialInstagramId={profile.instagram_id ?? null}
             />
           )}
         </div>
