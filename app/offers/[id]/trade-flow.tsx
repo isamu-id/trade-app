@@ -14,6 +14,15 @@ type TradeFlowProps = {
   requesterReceived: boolean;
 };
 
+const CARRIERS: { name: string; url: (no: string) => string }[] = [
+  { name: "ヤマト運輸", url: (no) => `https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.CRJZ0001?id=${no}` },
+  { name: "佐川急便", url: (no) => `https://k2k.sagawa-exp.co.jp/p/sagawa/web/okurijosearch.jsp?okurijoNo=${no}` },
+  { name: "日本郵便", url: (no) => `https://trackings.post.japanpost.jp/services/srv/search/?requestNo=${no}` },
+  { name: "ゆうパケット", url: (no) => `https://trackings.post.japanpost.jp/services/srv/search/?requestNo=${no}` },
+  { name: "Amazon配送", url: (no) => `https://www.amazon.co.jp/progress-tracker/package/ref=pe_login_pkgt_btn?itemId=${no}` },
+  { name: "その他", url: () => "" },
+];
+
 function Step({ label, state }: { label: string; state: "done" | "active" | "pending" }) {
   return (
     <div className="flex flex-1 flex-col items-center gap-1">
@@ -40,9 +49,7 @@ function Step({ label, state }: { label: string; state: "done" | "active" | "pen
 }
 
 function StepLine({ done }: { done: boolean }) {
-  return (
-    <div className={`h-0.5 flex-1 mt-3.5 ${done ? "bg-green-400" : "bg-hairline"}`} />
-  );
+  return <div className={`h-0.5 flex-1 mt-3.5 ${done ? "bg-green-400" : "bg-hairline"}`} />;
 }
 
 export default function TradeFlow({
@@ -51,6 +58,10 @@ export default function TradeFlow({
   const supabase = createClient();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [showShipForm, setShowShipForm] = useState(false);
+  const [carrier, setCarrier] = useState(CARRIERS[0].name);
+  const [trackingNo, setTrackingNo] = useState("");
+  const [trackingError, setTrackingError] = useState<string | null>(null);
 
   const myShipped = isOfferer ? offererShipped : requesterShipped;
   const theirShipped = isOfferer ? requesterShipped : offererShipped;
@@ -58,12 +69,30 @@ export default function TradeFlow({
   const theirReceived = isOfferer ? requesterReceived : offererReceived;
   const bothShipped = offererShipped && requesterShipped;
 
-  async function handleShipped() {
-    if (!window.confirm("商品を発送しましたか？\n「OK」を押すと相手に発送通知が届きます。取り消しはできません。")) return;
+  async function handleShipSubmit() {
+    if (!trackingNo.trim()) { setTrackingError("追跡番号を入力してください"); return; }
     setLoading(true);
+    setTrackingError(null);
+
+    // 発送済みにする
     const { error } = await supabase.rpc("mark_shipped", { offer_id: offerId });
+    if (error) { setLoading(false); alert("エラー: " + error.message); return; }
+
+    // 追跡カードをチャットに送信
+    const carrierData = CARRIERS.find((c) => c.name === carrier);
+    const trackingUrl = carrierData?.url(trackingNo.trim()) ?? "";
+    const message = `track:${carrier}:${trackingNo.trim()}:${trackingUrl}`;
+
+    const { data: authData } = await supabase.auth.getUser();
+    await supabase.from("messages").insert({
+      offer_id: offerId,
+      sender_id: authData.user?.id,
+      content: message,
+    });
+
     setLoading(false);
-    if (error) { alert("エラー: " + error.message); return; }
+    setShowShipForm(false);
+    setTrackingNo("");
     router.refresh();
   }
 
@@ -90,21 +119,66 @@ export default function TradeFlow({
         {bothShipped && (
           <>
             <StepLine done={myReceived && theirReceived} />
-            <Step label="受取完了" state={myReceived && theirReceived ? "done" : bothShipped ? "active" : "pending"} />
+            <Step label="受取完了" state={myReceived && theirReceived ? "done" : "active"} />
           </>
         )}
       </div>
 
-      {/* アクションボタン */}
-      {!myShipped && (
+      {/* 発送フォーム */}
+      {!myShipped && !showShipForm && (
         <button
-          onClick={handleShipped}
-          disabled={loading}
-          className="flex w-full items-center justify-center gap-2 rounded-full bg-gold py-2.5 text-sm font-medium text-white transition hover:bg-gold/90 disabled:opacity-50"
+          onClick={() => setShowShipForm(true)}
+          className="flex w-full items-center justify-center gap-2 rounded-full bg-gold py-2.5 text-sm font-medium text-white transition hover:bg-gold/90"
         >
-          {loading && <Spinner />}
           発送しました
         </button>
+      )}
+
+      {!myShipped && showShipForm && (
+        <div className="rounded-xl border border-hairline bg-neutral-50 p-4">
+          <p className="mb-3 text-xs font-medium text-ink">発送情報を入力してください</p>
+          <div className="flex flex-col gap-3">
+            <div>
+              <label className="mb-1 block text-xs text-subtle">運送会社</label>
+              <select
+                value={carrier}
+                onChange={(e) => setCarrier(e.target.value)}
+                className="w-full rounded-xl border border-hairline bg-white px-3 py-2.5 text-sm text-ink outline-none focus:border-gold"
+              >
+                {CARRIERS.map((c) => (
+                  <option key={c.name} value={c.name}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-subtle">追跡番号</label>
+              <input
+                type="text"
+                value={trackingNo}
+                onChange={(e) => setTrackingNo(e.target.value)}
+                placeholder="例: 1234-5678-9012"
+                className="w-full rounded-xl border border-hairline bg-white px-3 py-2.5 text-sm text-ink outline-none focus:border-gold focus:ring-4 focus:ring-gold-soft"
+              />
+              {trackingError && <p className="mt-1 text-xs text-red-500">{trackingError}</p>}
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setShowShipForm(false); setTrackingNo(""); setTrackingError(null); }}
+                className="flex-1 rounded-full border border-hairline py-2.5 text-sm text-subtle hover:bg-neutral-100"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={handleShipSubmit}
+                disabled={loading}
+                className="flex flex-1 items-center justify-center gap-2 rounded-full bg-gold py-2.5 text-sm font-medium text-white disabled:opacity-50"
+              >
+                {loading && <Spinner />}
+                送信する
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {myShipped && !theirShipped && (

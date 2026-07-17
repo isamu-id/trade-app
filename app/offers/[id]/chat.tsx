@@ -97,9 +97,47 @@ export default function Chat({
         {messages.map((m) => {
           const isSystem = !m.sender_id || m.content.startsWith("🤝") || m.content.startsWith("🎉") || m.content.startsWith("🎁") || m.content.startsWith("🚨");
           const isImage = m.content.startsWith("img:");
+          const isTrack = m.content.startsWith("track:");
           const isMe = m.sender_id === currentUserId;
 
-          if (isSystem) {
+          const isTrack = m.content.startsWith("track:");
+
+          if (isTrack) {
+            const [, carrierName, trackingNo, trackingUrl] = m.content.split(":");
+            const isMe = m.sender_id === currentUserId;
+            return (
+              <div key={m.id} className={`flex flex-col gap-1 ${isMe ? "items-end" : "items-start"}`}>
+                <div className="rounded-2xl border border-hairline bg-white p-3 max-w-[85%]">
+                  <p className="text-xs text-subtle mb-2">📦 発送しました</p>
+                  <div className="flex flex-col gap-1 mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-subtle w-16 flex-shrink-0">運送会社</span>
+                      <span className="text-xs font-medium text-ink">{carrierName}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-subtle w-16 flex-shrink-0">追跡番号</span>
+                      <span className="text-xs font-medium text-ink">{trackingNo}</span>
+                    </div>
+                  </div>
+                  {trackingUrl ? (
+                    <a
+                      href={trackingUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-1.5 w-full rounded-full bg-gold px-4 py-2 text-xs font-medium text-white hover:bg-gold/90 transition"
+                    >
+                      荷物を追跡する →
+                    </a>
+                  ) : (
+                    <p className="text-center text-xs text-subtle">追跡番号: {trackingNo}</p>
+                  )}
+                </div>
+                <span className="text-[10px] text-subtle">
+                  {new Date(m.created_at).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              </div>
+            );
+          }
             const text = m.content.replace(/^(🤝|🎉|🎁|🚨) /, "");
             const emoji = m.content.match(/^(🤝|🎉|🎁|🚨)/)?.[0] ?? "📢";
             return (
